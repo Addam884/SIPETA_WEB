@@ -1,0 +1,165 @@
+/* ===== NAVBAR ===== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60px;
+  height: 70px;
+  background: rgba(10, 61, 107, 0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: white;
+  font-family: 'Syne', sans-serif;
+}
+
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 2px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+}
+
+.nav-item {
+  padding: 8px 16px;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+.btn-login {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-login:hover {
+  background: var(--accent-warm);
+  transform: translateY(-1px);
+}
+
+/* ===== HAMBURGER ===== */
+
+.menu-toggle{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+}
+
+.menu-toggle span{
+  width:24px;
+  height:3px;
+  background:white;
+  border-radius:2px;
+}
+
+/* ===== RESPONSIVE NAVBAR ===== */
+
+@media (max-width:768px){
+
+.navbar{
+  padding:0 20px;
+}
+
+.menu-toggle{
+  display:flex;
+}
+
+.nav-links{
+  position:absolute;
+  top:70px;
+  left:0;
+  width:100%;
+  background:rgba(10,61,107,0.98);
+  flex-direction:column;
+  align-items:center;
+  gap:0;
+  padding:20px 0;
+  display:none;
+}
+
+.nav-links.open{
+  display:flex;
+}
+
+.nav-item{
+  width:100%;
+  text-align:center;
+  padding:14px 0;
+}
+
+.btn-login{
+  padding:6px 14px;
+  font-size:12px;
+  gap:6px;
+  margin-left: 40px;
+}
+
+.btn-login svg{
+  width:14px;
+  height:14px;
+}
+
+}
+
+/* ===== DESKTOP NAV POSITION ===== */
+
+@media (min-width:769px){
+
+.navbar{
+  position: relative;
+}
+
+.nav-links{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+}

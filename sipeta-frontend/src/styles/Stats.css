@@ -1,0 +1,116 @@
+/* ===== STATS ===== */
+.stats-section {
+  padding: 0 60px;
+  margin-top: -44px;
+  position: relative;
+  z-index: 10;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-icon {
+  font-size: 28px;
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.stat-trend {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width:1024px){
+
+  .stats-section{
+    padding:0 40px;
+  }
+
+  .stats-grid{
+    grid-template-columns: repeat(2,1fr);
+  }
+
+}
+
+/* Mobile */
+@media (max-width:768px){
+
+  .stats-section{
+    padding:0 20px;
+    margin-top:-30px;
+  }
+
+  .stats-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .stat-card{
+    padding:20px;
+  }
+
+}
+
+/* HP kecil */
+@media (max-width:480px){
+
+  .stat-value{
+    font-size:24px;
+  }
+
+  .stat-icon{
+    width:46px;
+    height:46px;
+    font-size:22px;
+  }
+
+}

@@ -1,0 +1,188 @@
+/* ===== HERO ===== */
+
+.hero{
+  position: relative;
+  background: linear-gradient(135deg,#04203f 0%,#0a3d6b 50%,#0d5c3a 100%);
+  padding:70px 60px 80px;
+  overflow:hidden;
+  min-height:calc(100vh - 70px);
+  display:flex;
+  align-items:center;
+}
+
+.hero-bg-grid{
+  position:absolute;
+  inset:0;
+  background-image:
+  linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+.hero-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  opacity:0.3;
+}
+
+.hero-orb-1{
+  width:500px;
+  height:500px;
+  background:radial-gradient(circle,#00c97a,transparent);
+  top:-150px;
+  right:-100px;
+  animation:orbFloat 8s ease-in-out infinite;
+}
+
+.hero-orb-2{
+  width:400px;
+  height:400px;
+  background:radial-gradient(circle,#1565a8,transparent);
+  bottom:-150px;
+  left:-100px;
+  animation:orbFloat 10s ease-in-out infinite reverse;
+}
+
+@keyframes orbFloat{
+  0%,100%{transform:translate(0,0);}
+  50%{transform:translate(30px,-30px);}
+}
+
+.hero-container{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:40px;
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.hero-left{
+  flex:1;
+}
+
+.hero-title{
+  font-family:'Syne',sans-serif;
+  font-size:42px;
+  font-weight:800;
+  color:white;
+  line-height:1.15;
+  margin-bottom:20px;
+}
+
+.hero-accent{
+  color:#00c97a;
+}
+
+.hero-desc{
+  color:rgba(255,255,255,0.65);
+  font-size:17px;
+  line-height:1.7;
+  max-width:480px;
+  margin-bottom:36px;
+}
+
+.hero-actions{
+  display:flex;
+  gap:14px;
+}
+
+.btn-primary{
+  padding:14px 28px;
+  background:#00c97a;
+  border:none;
+  border-radius:10px;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn-secondary{
+  padding:14px 28px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:10px;
+  color:white;
+}
+
+.virus-lottie{
+  width:420px;
+  height:320px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width: 1024px){
+
+  .hero{
+    padding:60px 40px 70px;
+  }
+
+  .hero-title{
+    font-size:36px;
+  }
+
+  .virus-lottie{
+    width:360px;
+    height:280px;
+  }
+
+}
+
+
+/* Mobile */
+@media (max-width: 768px){
+
+  .hero{
+    padding:60px 24px;
+  }
+
+  .hero-container{
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .hero-desc{
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .hero-actions{
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
+  .hero-title{
+    font-size:32px;
+  }
+
+  .virus-lottie{
+    width:300px;
+    height:240px;
+  }
+
+}
+
+
+/* Mobile kecil */
+@media (max-width: 480px){
+
+  .hero-title{
+    font-size:26px;
+  }
+
+  .hero-desc{
+    font-size:15px;
+  }
+
+  .btn-primary,
+  .btn-secondary{
+    width:100%;
+  }
+
+}

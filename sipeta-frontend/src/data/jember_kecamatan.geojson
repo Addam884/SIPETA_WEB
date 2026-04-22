@@ -1,0 +1,25 @@
+{
+"type": "FeatureCollection",
+"features": [
+{
+"type": "Feature",
+"properties": {
+"name": "Kaliwates"
+},
+"geometry": {
+"type": "Polygon",
+"coordinates": [[[113.69,-8.18],[113.71,-8.18],[113.71,-8.16],[113.69,-8.16],[113.69,-8.18]]]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"name": "Sumbersari"
+},
+"geometry": {
+"type": "Polygon",
+"coordinates": [[[113.70,-8.20],[113.72,-8.20],[113.72,-8.18],[113.70,-8.18],[113.70,-8.20]]]
+}
+}
+]
+}

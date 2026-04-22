@@ -1,0 +1,27 @@
+/* ===== FOOTER ===== */
+.footer {
+  background: var(--primary);
+  padding: 40px 60px;
+  text-align: center;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer .nav-brand {
+  margin-bottom: 4px;
+}
+
+.footer-desc {
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+}
+
+.footer-copy {
+  color: rgba(255,255,255,0.35);
+  font-size: 12px;
+}

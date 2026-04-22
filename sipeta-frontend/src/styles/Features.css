@@ -1,0 +1,166 @@
+/* ===== FEATURES ===== */
+.features-section {
+  padding: 80px 60px 100px;
+  background: linear-gradient(180deg, #e8f4fd 0%, #f0f4f8 100%);
+}
+
+.section-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 56px;
+}
+
+.section-sub {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #f0fdf4, #dbeafe);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.feature-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.feature-desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.feature-arrow {
+  color: var(--accent);
+  font-size: 18px;
+  margin-top: 14px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.feature-card:hover .feature-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* ===== RESPONSIVE FEATURES ===== */
+
+/* Tablet */
+@media (max-width:1024px){
+
+.features-section{
+  padding:70px 40px 90px;
+}
+
+.features-grid{
+  grid-template-columns: repeat(2,1fr);
+  gap:20px;
+}
+
+.section-header{
+  margin-bottom:44px;
+}
+
+}
+
+
+/* Mobile */
+@media (max-width:768px){
+
+.features-section{
+  padding:60px 20px 80px;
+}
+
+.features-grid{
+  grid-template-columns:1fr;
+  gap:18px;
+}
+
+.feature-card{
+  padding:26px 22px;
+}
+
+.feature-icon{
+  width:52px;
+  height:52px;
+  font-size:26px;
+}
+
+.feature-title{
+  font-size:15px;
+}
+
+.feature-desc{
+  font-size:13px;
+}
+
+}
+
+
+/* HP kecil */
+@media (max-width:480px){
+
+.section-sub{
+  font-size:14px;
+}
+
+.feature-card{
+  padding:22px 20px;
+}
+
+}

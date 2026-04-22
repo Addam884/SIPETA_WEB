@@ -1,0 +1,211 @@
+/* ===== MAP SECTION ===== */
+.map-section {
+  padding: 80px 60px 100px;
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.map-wrapper {
+  height: 480px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+.map-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 22px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.legend-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.hotspot-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.hotspot-item:last-child {
+  border-bottom: none;
+}
+
+.hotspot-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hotspot-info {
+  flex: 1;
+}
+
+.hotspot-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hotspot-cases {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.hotspot-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid;
+  background: transparent;
+}
+
+.btn-fullmap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: var(--primary);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-fullmap:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(10, 61, 107, 0.25);
+}
+
+/* ===== RESPONSIVE MAP SECTION ===== */
+
+/* Tablet */
+@media (max-width:1024px){
+
+.map-section{
+  padding:70px 40px 90px;
+}
+
+.map-layout{
+  grid-template-columns:1fr 260px;
+  gap:20px;
+}
+
+.map-wrapper{
+  height:420px;
+}
+
+}
+
+
+/* Mobile */
+@media (max-width:768px){
+
+.map-section{
+  padding:60px 20px 80px;
+}
+
+.map-layout{
+  grid-template-columns:1fr;
+  gap:24px;
+}
+
+.map-wrapper{
+  height:360px;
+}
+
+.map-sidebar{
+  flex-direction:column;
+}
+
+.sidebar-card{
+  padding:18px;
+}
+
+}
+
+
+/* HP kecil */
+@media (max-width:480px){
+
+.map-wrapper{
+  height:300px;
+}
+
+.sidebar-title{
+  font-size:13px;
+}
+
+.legend-label{
+  font-size:12px;
+}
+
+.hotspot-name{
+  font-size:12px;
+}
+
+}

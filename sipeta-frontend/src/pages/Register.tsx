@@ -43,28 +43,31 @@ function Register() {
                     <h1>SIPETA</h1>
 
                     <p>
-                        Sistem Informasi Pemetaan Penyakit berbasis web untuk membantu
-                        visualisasi dan analisis data kesehatan secara geografis.
+                        Sistem Informasi Pemetaan Penyakit berbasis web yang membantu
+                        memvisualisasikan penyebaran penyakit secara geografis sehingga
+                        mempermudah analisis dan pengambilan keputusan.
                     </p>
                 </div>
-                <div className="login-stat">
-              <span className="login-stat__num">Real-time</span>
-              <span className="login-stat__label">Pembaruan Data</span>
-            </div>
+                <div className="login-left__stats">
+                    <div className="login-stat">
+                        <span className="login-stat__num">Real-time</span>
+                        <span className="login-stat__label">Pembaruan Data</span>
+                    </div>
 
-            <div className="login-stat__divider" />
+                    <div className="login-stat__divider" />
 
-            <div className="login-stat">
-              <span className="login-stat__num">GIS</span>
-              <span className="login-stat__label">Berbasis Peta</span>
-            </div>
+                    <div className="login-stat">
+                        <span className="login-stat__num">GIS</span>
+                        <span className="login-stat__label">Berbasis Peta</span>
+                    </div>
 
-            <div className="login-stat__divider" />
+                    <div className="login-stat__divider" />
 
-            <div className="login-stat">
-              <span className="login-stat__num">Analitik</span>
-              <span className="login-stat__label">Visual Interaktif</span>
-            </div>
+                    <div className="login-stat">
+                        <span className="login-stat__num">Analitik</span>
+                        <span className="login-stat__label">Visual Interaktif</span>
+                    </div>
+                </div>
             </div>
 
             {/* RIGHT SIDE */}

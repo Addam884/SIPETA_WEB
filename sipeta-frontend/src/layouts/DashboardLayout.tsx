@@ -60,7 +60,7 @@ const pageDescriptions: Record<MenuKey, string> = {
 };
 
 /* ✅ HANYA TAMBAH PROPS */
-function DashboardLayout({ role }: DashboardLayoutProps) {
+function DashboardLayout({ role: _role }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
 

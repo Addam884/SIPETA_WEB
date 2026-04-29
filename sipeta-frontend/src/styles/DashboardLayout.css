@@ -1,0 +1,122 @@
+/* DashboardLayout.css */
+.layout-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 260px;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0;
+  transition: all 0.3s ease;
+}
+
+.sidebar-brand {
+  padding: 0 24px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 40px;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0 16px;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+}
+
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.sidebar-nav li a:hover, 
+.sidebar-nav li a.active {
+  background-color: #eef2f6; /* Warna biru sangat muda untuk hover/active */
+  color: var(--primary);
+}
+
+/* Header & Main Content */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.main-header {
+  height: 80px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.content-body {
+  padding: 0 32px 32px 32px;
+}
+
+/* Update di bagian menu navigasi DashboardLayout.css */
+
+.sidebar-nav li {
+  margin-bottom: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Jarak antara ikon dan teks */
+  padding: 12px 24px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--primary);
+  background-color: #f8fafc;
+}
+
+/* Efek menyala biru untuk menu yang sedang aktif (seperti menu Dashboard di gambar) */
+.nav-item.active {
+  background-color: #e6f0ff; /* Background biru muda */
+  color: var(--primary-light); /* Warna teks & ikon biru */
+  border-radius: 8px;
+  margin: 0 12px; /* Memberi margin sedikit agar background tidak full menempel tepi */
+  padding: 12px 16px;
+}
+
+/* Header penyesuaian agar profil ada di kanan */
+.main-header {
+  height: 80px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.header-spacer {
+  flex: 1;
+}

@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LineChart, 
@@ -15,7 +16,7 @@ interface LayoutProps {
   role: Role;
 }
 
-export default function DashboardLayout({ role }: LayoutProps) {
+const DashboardLayout: React.FC<LayoutProps> = ({ role }) => {
   const navigate = useNavigate();
 
   return (
@@ -34,6 +35,7 @@ export default function DashboardLayout({ role }: LayoutProps) {
                 <span>Dashboard</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink 
                 to={`/${role}/gis`} 
@@ -43,6 +45,7 @@ export default function DashboardLayout({ role }: LayoutProps) {
                 <span>GIS</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink 
                 to={`/${role}/data-master`} 
@@ -52,6 +55,7 @@ export default function DashboardLayout({ role }: LayoutProps) {
                 <span>Data Master</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink 
                 to={`/${role}/data-kasus`} 
@@ -61,6 +65,7 @@ export default function DashboardLayout({ role }: LayoutProps) {
                 <span>Data Kasus</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink 
                 to={`/${role}/settings`} 
@@ -74,21 +79,27 @@ export default function DashboardLayout({ role }: LayoutProps) {
         </nav>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main */}
       <div className="main-wrapper">
         <header className="main-header">
-          {/* Spacer kosong untuk mendorong profil ke kanan */}
-          <div className="header-spacer"></div> 
-          
-          {/* Ikon Profil di pojok kanan atas seperti di gambar */}
-          <div className="header-profile" onClick={() => navigate('/login')} style={{cursor: 'pointer'}} title="Logout">
+          <div className="header-spacer"></div>
+
+          <div 
+            className="header-profile" 
+            onClick={() => navigate('/login')} 
+            style={{ cursor: 'pointer' }} 
+            title="Logout"
+          >
             <UserCircle size={40} color="var(--text-muted)" />
           </div>
         </header>
+
         <main className="content-body">
-          <Outlet /> {/* Tempat konten dashboard dirender */}
+          <Outlet />
         </main>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;

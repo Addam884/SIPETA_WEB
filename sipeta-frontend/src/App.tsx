@@ -5,12 +5,14 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperadminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import UserDashboard from "./pages/dashboard/UserDashboard";
+import Register from "./pages/Register";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       <Route path="/user" element={<DashboardLayout role="user" />}>
         <Route index element={<Navigate to="/user/dashboard" replace />} />

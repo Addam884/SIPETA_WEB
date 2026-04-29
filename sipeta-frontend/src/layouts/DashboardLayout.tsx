@@ -4,6 +4,13 @@ import sipetaLogo from "../assets/logo.png";
 import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
+/* ✅ TAMBAHAN ROLE */
+export type Role = "user" | "admin" | "superadmin";
+
+type DashboardLayoutProps = {
+  role: Role;
+};
+
 type MenuKey = "dashboard" | "gis" | "settings";
 
 type MenuItem = {
@@ -12,6 +19,7 @@ type MenuItem = {
   icon: ReactNode;
 };
 
+/* ⛔ TIDAK DIUBAH */
 const menuItems: MenuItem[] = [
   {
     key: "dashboard",
@@ -51,11 +59,17 @@ const pageDescriptions: Record<MenuKey, string> = {
   settings: "Konfigurasi sistem akan ditempatkan di area child page.",
 };
 
-function DashboardLayout() {
+/* ✅ HANYA TAMBAH PROPS */
+function DashboardLayout({ role }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
 
-  const activeItem = menuItems.find((item) => item.key === activeMenu) ?? menuItems[0];
+  /* ✅ OPTIONAL (tidak ubah UI, hanya logic) */
+  const filteredMenu = menuItems;
+
+  const activeItem =
+    filteredMenu.find((item) => item.key === activeMenu) ??
+    filteredMenu[0];
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -78,16 +92,16 @@ function DashboardLayout() {
           </div>
 
           <button
-  className="sidebar-toggle"
-  type="button"
-  onClick={() => setIsCollapsed((value) => !value)}
-  aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-  data-tooltip={
-    isCollapsed
-      ? "Expand sidebar (Ctrl + B)"
-      : "Collapse sidebar (Ctrl + B)"
-  }
->
+            className="sidebar-toggle"
+            type="button"
+            onClick={() => setIsCollapsed((value) => !value)}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            data-tooltip={
+              isCollapsed
+                ? "Expand sidebar (Ctrl + B)"
+                : "Collapse sidebar (Ctrl + B)"
+            }
+          >
             <span className="sidebar-toggle__logo">
               <img src={sipetaLogoIcon} alt="SIPETA" />
             </span>
@@ -102,7 +116,7 @@ function DashboardLayout() {
         </div>
 
         <nav className="dashboard-menu" aria-label="Menu dashboard SIPETA">
-          {menuItems.map((item) => (
+          {filteredMenu.map((item) => (
             <button
               className={`dashboard-menu__item${activeMenu === item.key ? " dashboard-menu__item--active" : ""}`}
               key={item.key}
@@ -121,7 +135,7 @@ function DashboardLayout() {
         <header className="dashboard-header">
           <div>
             <h1>{activeItem.label}</h1>
-            <p>{pageDescriptions[activeMenu]}</p>
+            <p>{pageDescriptions[activeItem.key]}</p>
           </div>
 
           <div className="dashboard-header__right">
@@ -139,8 +153,7 @@ function DashboardLayout() {
             <span>Child Page Area</span>
             <h2>{activeItem.label}</h2>
             <p>
-              Area ini nanti diisi child page {activeItem.label}. Untuk sekarang hanya menampilkan desain layout,
-              interaksi sidebar, collapse, hover, active state, tooltip, shortcut Ctrl+B, dan header dinamis.
+              Area ini nanti diisi child page {activeItem.label}.
             </p>
           </section>
         </main>

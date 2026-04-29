@@ -152,10 +152,6 @@
 
 @media (min-width:769px){
 
-.navbar{
-  position: relative;
-}
-
 .nav-links{
   position: absolute;
   left: 50%;

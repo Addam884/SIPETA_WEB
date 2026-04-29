@@ -1,54 +1,131 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import sipetaLogo from "../assets/logo.png";
+import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
- 
-const menuItems = [
-  { label: "Dashboard", path: "/app/dashboard", icon: "⌁" },
-  { label: "GIS", path: "/app/gis", icon: "◉" },
-  { label: "Settings", path: "/app/settings", icon: "⚙" },
-];
- 
-const pageTitles: Record<string, string> = {
-  "/app/dashboard": "Dashboard",
-  "/app/gis": "GIS",
-  "/app/settings": "Settings",
+
+type MenuKey = "dashboard" | "gis" | "settings";
+
+type MenuItem = {
+  key: MenuKey;
+  label: string;
+  icon: ReactNode;
 };
- 
+
+const menuItems: MenuItem[] = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 13.5 9 8l4 4 7-8" />
+        <path d="M4 20h16" />
+      </svg>
+    ),
+  },
+  {
+    key: "gis",
+    label: "GIS",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </svg>
+    ),
+  },
+  {
+    key: "settings",
+    label: "Settings",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+        <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 0 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.1 1.65V21.4a2.1 2.1 0 0 1-4.2 0v-.15a1.8 1.8 0 0 0-1.1-1.65 1.8 1.8 0 0 0-1.98.36l-.05.05A2.1 2.1 0 0 1 3.4 17.04l.05-.05A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.65-1.1H2a2.1 2.1 0 0 1 0-4.2h.15A1.8 1.8 0 0 0 3.8 8.6a1.8 1.8 0 0 0-.36-1.98l-.05-.05A2.1 2.1 0 0 1 6.36 3.6l.05.05A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1.1-1.65V2.2a2.1 2.1 0 0 1 4.2 0v.15A1.8 1.8 0 0 0 14.8 4a1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 0 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.1h.15a2.1 2.1 0 0 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z" />
+      </svg>
+    ),
+  },
+];
+
+const pageDescriptions: Record<MenuKey, string> = {
+  dashboard: "Ringkasan data surveilans penyakit menular.",
+  gis: "Tampilan peta GIS akan ditempatkan di area child page.",
+  settings: "Konfigurasi sistem akan ditempatkan di area child page.",
+};
+
 function DashboardLayout() {
-  const location = useLocation();
-  const title = pageTitles[location.pathname] ?? "Dashboard";
- 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
+
+  const activeItem = menuItems.find((item) => item.key === activeMenu) ?? menuItems[0];
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
+        event.preventDefault();
+        setIsCollapsed((value) => !value);
+      }
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
   return (
-    <div className="dashboard-shell">
+    <div className={`dashboard-shell${isCollapsed ? " dashboard-shell--collapsed" : ""}`}>
       <aside className="dashboard-sidebar">
-        <NavLink className="dashboard-logo" to="/app/dashboard">
-          SIPETA
-        </NavLink>
- 
-        <nav className="dashboard-menu" aria-label="Menu utama SIPETA">
+        <div className="dashboard-sidebar__top">
+          <div className="dashboard-logo" title="SIPETA">
+            <img src={sipetaLogo} alt="SIPETA" />
+          </div>
+
+          <button
+  className="sidebar-toggle"
+  type="button"
+  onClick={() => setIsCollapsed((value) => !value)}
+  aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+  data-tooltip={
+    isCollapsed
+      ? "Expand sidebar (Ctrl + B)"
+      : "Collapse sidebar (Ctrl + B)"
+  }
+>
+            <span className="sidebar-toggle__logo">
+              <img src={sipetaLogoIcon} alt="SIPETA" />
+            </span>
+
+            <span className="sidebar-toggle__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M9 5v14" />
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <nav className="dashboard-menu" aria-label="Menu dashboard SIPETA">
           {menuItems.map((item) => (
-            <NavLink
-              className={({ isActive }) =>
-                `dashboard-menu__item${isActive ? " dashboard-menu__item--active" : ""}`
-              }
-              key={item.path}
-              to={item.path}
+            <button
+              className={`dashboard-menu__item${activeMenu === item.key ? " dashboard-menu__item--active" : ""}`}
+              key={item.key}
+              type="button"
+              onClick={() => setActiveMenu(item.key)}
+              title={isCollapsed ? item.label : undefined}
             >
               <span className="dashboard-menu__icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </NavLink>
+              <span className="dashboard-menu__label">{item.label}</span>
+            </button>
           ))}
         </nav>
       </aside>
- 
+
       <div className="dashboard-main">
         <header className="dashboard-header">
           <div>
-            <p className="dashboard-header__eyebrow">Sistem Informasi Surveilans</p>
-            <h1>{title}</h1>
+            <h1>{activeItem.label}</h1>
+            <p>{pageDescriptions[activeMenu]}</p>
           </div>
- 
-          <div className="dashboard-header__actions">
-            <button className="dashboard-header__button" type="button">
+
+          <div className="dashboard-header__right">
+            <button className="header-action" type="button">
               Export
             </button>
             <div className="dashboard-profile" aria-label="Profil pengguna">
@@ -56,13 +133,20 @@ function DashboardLayout() {
             </div>
           </div>
         </header>
- 
+
         <main className="dashboard-content">
-          <Outlet />
+          <section className="layout-preview-card">
+            <span>Child Page Area</span>
+            <h2>{activeItem.label}</h2>
+            <p>
+              Area ini nanti diisi child page {activeItem.label}. Untuk sekarang hanya menampilkan desain layout,
+              interaksi sidebar, collapse, hover, active state, tooltip, shortcut Ctrl+B, dan header dinamis.
+            </p>
+          </section>
         </main>
       </div>
     </div>
   );
 }
- 
+
 export default DashboardLayout;

@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Tambahkan useNavigate
 import "../styles/Login.css";
 
 function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  
+  const navigate = useNavigate(); // Inisialisasi useNavigate
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +18,16 @@ function Login() {
       remember
     });
 
-    // nanti disini bisa panggil API login
+    // SIMULASI LOGIN API & ROLE ROUTING
+    // Nanti logika ini diganti dengan response dari backend Laravel kamu
+    if (email === 'admin@sipeta.com') {
+      navigate('/admin/dashboard');
+    } else if (email === 'superadmin@sipeta.com') {
+      navigate('/superadmin/dashboard');
+    } else {
+      // Default: lempar ke dashboard user biasa
+      navigate('/user/dashboard');
+    }
   };
 
   return (
@@ -87,8 +98,8 @@ function Login() {
               <div className="form-group__input-wrap">
 
                 <svg className="form-group__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="4" width="20" height="16" rx="2"/>
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                 </svg>
 
                 <input
@@ -109,8 +120,8 @@ function Login() {
               <div className="form-group__input-wrap">
 
                 <svg className="form-group__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
 
                 <input
@@ -148,10 +159,15 @@ function Login() {
               <span>Masuk</span>
 
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
 
             </button>
+
+            {/* LINK KE REGISTER */}
+            <p className="login-register-link">
+              Belum punya akun? <Link to="/register">Daftar</Link>
+            </p>
 
           </form>
 

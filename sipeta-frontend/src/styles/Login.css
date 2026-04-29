@@ -7,7 +7,7 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1.3fr;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ─────────────────────────────────────────
@@ -22,7 +22,7 @@
   padding: 80px 72px;
   background: linear-gradient(148deg,#04203f 0%,#0a3d6b 50%,#0d5c3a 100%);
   color: #fff;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Dot-grid texture */
@@ -91,9 +91,9 @@
 /* Heading */
 .login-left h1 {
   font-family: 'Syne', sans-serif;
-  font-size: 76px;
+  font-size: clamp(42px, 6vw, 76px);
   font-weight: 800;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   line-height: 1;
   margin-bottom: 22px;
   background: #fff;
@@ -116,6 +116,9 @@
   align-items: center;
   gap: 28px;
   margin-top: 52px;
+}
+.login-left__content {
+  padding-right: 10px;
 }
 .login-stat { display: flex; flex-direction: column; gap: 3px; }
 .login-stat__num {

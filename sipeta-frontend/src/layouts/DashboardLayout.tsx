@@ -4,6 +4,10 @@ import sipetaLogo from "../assets/logo.png";
 import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
+/*pagenya disini*/
+import Datakasus from "../pages/datakasus.tsx";
+import DashboarAdmin from "../pages/dashboard/AdminDashboard.tsx"
+
 /* ✅ TAMBAHAN ROLE */
 export type Role = "user" | "admin" | "superadmin";
 
@@ -11,7 +15,7 @@ type DashboardLayoutProps = {
   role: Role;
 };
 
-type MenuKey = "dashboard" | "gis" | "settings";
+type MenuKey = "dashboard" | "gis" | "datakasus" | "datamaster" | "settings";
 
 type MenuItem = {
   key: MenuKey;
@@ -19,7 +23,12 @@ type MenuItem = {
   icon: ReactNode;
 };
 
-/* ⛔ TIDAK DIUBAH */
+const roleMenus: Record<Role, MenuKey[]> = {
+  user: ["dashboard", "gis"],
+  admin: ["dashboard", "gis", "datakasus", "settings"],
+  superadmin: ["dashboard", "gis", "datakasus", "datamaster", "settings"],
+};
+
 const menuItems: MenuItem[] = [
   {
     key: "dashboard",
@@ -42,6 +51,28 @@ const menuItems: MenuItem[] = [
     ),
   },
   {
+    key: "datakasus",
+    label: "Data Kasus",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+      <path d="M14 2v6h6"/>
+      <path d="M8 13h8M8 17h8M8 9h4"/>
+        </svg>
+    ),
+  },
+  {
+    key: "datamaster",
+    label: "Data Master",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="12" cy="5" rx="7" ry="3"/>
+      <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/>
+      <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>
+        </svg>
+    ),
+  },
+  {
     key: "settings",
     label: "Settings",
     icon: (
@@ -55,8 +86,10 @@ const menuItems: MenuItem[] = [
 
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
-  gis: "Tampilan peta GIS akan ditempatkan di area child page.",
-  settings: "Konfigurasi sistem akan ditempatkan di area child page.",
+  gis: "Peta interaktif GIS.",
+  settings: "Konfigurasi akun kalian disini.",
+  datakasus: "Manajemen Data Kasus",
+  datamaster: "Manajemen Data Master"
 };
 
 /* ✅ HANYA TAMBAH PROPS */
@@ -65,7 +98,15 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
   const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
 
   /* ✅ OPTIONAL (tidak ubah UI, hanya logic) */
-  const filteredMenu = menuItems;
+  const filteredMenu = menuItems.filter((item) =>
+  roleMenus[_role].includes(item.key)
+);
+
+useEffect(() => {
+  if (!roleMenus[_role].includes(activeMenu)) {
+    setActiveMenu(roleMenus[_role][0]);
+  }
+}, [_role]);
 
   const activeItem =
     filteredMenu.find((item) => item.key === activeMenu) ??
@@ -82,6 +123,15 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
+
+  //aktifin child page disini//
+  const pageMap: Record<MenuKey, ReactNode> = {
+  dashboard: <DashboarAdmin/>,
+  gis: <div>GIS Page</div>,
+  datakasus: <Datakasus />,
+  datamaster: <div>Data Master Page</div>,
+  settings: <div>Settings Page</div>,
+};
 
   return (
     <div className={`dashboard-shell${isCollapsed ? " dashboard-shell--collapsed" : ""}`}>
@@ -149,13 +199,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
         </header>
 
         <main className="dashboard-content">
-          <section className="layout-preview-card">
-            <span>Child Page Area</span>
-            <h2>{activeItem.label}</h2>
-            <p>
-              Area ini nanti diisi child page {activeItem.label}.
-            </p>
-          </section>
+          {pageMap[activeMenu]}
         </main>
       </div>
     </div>

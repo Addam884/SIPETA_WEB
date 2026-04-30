@@ -6,7 +6,9 @@ import "../styles/DashboardLayout.css";
 
 /*pagenya disini*/
 import Datakasus from "../pages/datakasus.tsx";
-import DashboarAdmin from "../pages/dashboard/AdminDashboard.tsx"
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import UserDashboard from "../pages/dashboard/UserDashboard";
+import SuperAdminDashboard from "../pages/dashboard/SuperAdminDashboard";
 
 /* ✅ TAMBAHAN ROLE */
 export type Role = "user" | "admin" | "superadmin";
@@ -126,7 +128,11 @@ useEffect(() => {
 
   //aktifin child page disini//
   const pageMap: Record<MenuKey, ReactNode> = {
-  dashboard: <DashboarAdmin/>,
+  dashboard:
+    _role === "admin" ? <AdminDashboard /> :
+    _role === "superadmin" ? <SuperAdminDashboard /> :
+    <UserDashboard />,
+
   gis: <div>GIS Page</div>,
   datakasus: <Datakasus />,
   datamaster: <div>Data Master Page</div>,

@@ -6,6 +6,7 @@ import "../styles/DashboardLayout.css";
 
 /*pagenya disini*/
 import Datakasus from "../pages/datakasus.tsx";
+import DashboarAdmin from "../pages/dashboard/AdminDashboard.tsx"
 
 /* ✅ TAMBAHAN ROLE */
 export type Role = "user" | "admin" | "superadmin";
@@ -85,10 +86,10 @@ const menuItems: MenuItem[] = [
 
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
-  gis: "Tampilan peta GIS akan ditempatkan di area child page.",
-  settings: "Konfigurasi sistem akan ditempatkan di area child page.",
-  datakasus: "dadadada",
-  datamaster: "adadadadad"
+  gis: "Peta interaktif GIS.",
+  settings: "Konfigurasi akun kalian disini.",
+  datakasus: "Manajemen Data Kasus",
+  datamaster: "Manajemen Data Master"
 };
 
 /* ✅ HANYA TAMBAH PROPS */
@@ -125,7 +126,7 @@ useEffect(() => {
 
   //aktifin child page disini//
   const pageMap: Record<MenuKey, ReactNode> = {
-  dashboard: <div>Dashboard Page</div>, // nanti ganti component
+  dashboard: <DashboarAdmin/>,
   gis: <div>GIS Page</div>,
   datakasus: <Datakasus />,
   datamaster: <div>Data Master Page</div>,

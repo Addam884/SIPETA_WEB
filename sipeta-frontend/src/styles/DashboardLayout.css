@@ -178,6 +178,7 @@
   text-align: left;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  margin-bottom: 4px;
 }
 
 .dashboard-menu__item:hover {

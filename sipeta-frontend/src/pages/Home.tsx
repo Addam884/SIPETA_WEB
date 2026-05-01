@@ -1,10 +1,10 @@
-import "../styles/Navbar.css";
-import "../styles/Hero.css";
-import "../styles/Features.css";
-import "../styles/MapSection.css";
-import "../styles/Stats.css";
-import "../styles/About.css";
-import "../styles/Footer.css";
+import "../styles/landingPage/Navbar.css";
+import "../styles/landingPage/Hero.css";
+import "../styles/landingPage/Features.css";
+import "../styles/landingPage/MapSection.css";
+import "../styles/landingPage/Stats.css";
+import "../styles/landingPage/About.css";
+import "../styles/landingPage/Footer.css";
 import "../App.css";
 
 import Navbar from "../components/Navbar";

@@ -400,56 +400,110 @@
   font-size: 14px;
 }
 
+/* ─── Hamburger button (hanya tampil di mobile) ─── */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.hamburger-btn:hover {
+  background: #eef4ff;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #4b5563;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.dashboard-header__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── Mobile overlay ─── */
+.mobile-overlay {
+  display: none;
+}
+
+/* ─── Responsive ≤860px ─── */
 @media (max-width: 860px) {
   .dashboard-shell,
   .dashboard-shell--collapsed {
     grid-template-columns: 1fr;
   }
 
+  /* Sembunyikan sidebar secara default */
   .dashboard-sidebar {
-    height: auto;
-    padding: 12px 16px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    border-right: none;
-    border-bottom: 1px solid #eceff4;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.28s ease;
+    z-index: 200;
+    border-right: 1px solid #eceff4;
+    box-shadow: none;
+    height: 100vh;
+    padding: 18px 14px;
   }
 
-  .dashboard-sidebar__top {
-    flex: 0 0 auto;
+  /* Drawer terbuka */
+  .dashboard-sidebar--open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
   }
 
-  .dashboard-logo img {
-    width: 104px;
+  /* Collapse tidak berlaku di mobile */
+  .dashboard-shell--collapsed .dashboard-sidebar {
+    width: 240px;
+    padding: 18px 14px;
+    align-items: flex-start;
   }
 
   .dashboard-shell--collapsed .dashboard-logo {
     width: auto;
     opacity: 1;
     pointer-events: auto;
+    flex: 1 1 auto;
   }
 
-  .sidebar-toggle {
+  .dashboard-shell--collapsed .sidebar-toggle {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    border-radius: 6px;
+  }
+
+  .dashboard-shell--collapsed .sidebar-toggle__logo {
     display: none;
   }
 
-  .dashboard-menu {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
+  .dashboard-shell--collapsed .sidebar-toggle__icon {
+    position: static;
+    opacity: 1;
   }
 
-  .dashboard-menu::-webkit-scrollbar {
-    display: none;
-  }
-
-  .dashboard-menu__item,
   .dashboard-shell--collapsed .dashboard-menu__item {
-    width: auto;
-    justify-content: center;
-    padding: 8px 10px;
+    justify-content: flex-start;
+    padding: 8px 12px;
   }
 
   .dashboard-shell--collapsed .dashboard-menu__label {
@@ -457,27 +511,53 @@
     opacity: 1;
   }
 
+  /* Overlay gelap */
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 199;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Tampilkan tombol hamburger */
+  .hamburger-btn {
+    display: flex;
+  }
+
+  /* Sidebar toggle di dalam drawer tetap berfungsi */
+  .sidebar-toggle {
+    display: inline-flex;
+  }
+
   .dashboard-header {
-    padding: 14px 16px;
+    padding: 12px 16px;
   }
 
   .dashboard-content {
     padding: 16px;
   }
+
+  .dashboard-logo img {
+    width: 104px;
+  }
 }
 
 @media (max-width: 540px) {
-  .dashboard-sidebar {
-    display: grid;
-    gap: 12px;
+  .dashboard-header h1 {
+    font-size: 15px;
   }
 
-  .dashboard-menu__label {
-    display: none;
-  }
-
-  .dashboard-header {
-    align-items: flex-start;
+  .dashboard-header p {
+    font-size: 11px;
   }
 
   .header-action {

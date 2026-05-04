@@ -296,6 +296,7 @@
   background: rgba(246, 246, 247, 0.92);
   border-bottom: 1px solid #e9edf3;
   backdrop-filter: blur(14px);
+  margin-bottom: 0;
 }
 
 .dashboard-header h1 {
@@ -364,7 +365,7 @@
 .dashboard-content {
   min-width: 0;
   flex: 1;
-  padding: 24px 36px 34px 18px;
+  padding: 0px 36px 34px 18px;
 }
 
 .layout-preview-card {

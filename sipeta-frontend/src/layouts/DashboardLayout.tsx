@@ -4,13 +4,12 @@ import sipetaLogo from "../assets/logo.png";
 import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
-/*pagenya disini*/
 import Datakasus from "../pages/datakasus.tsx";
+import Settings from "../pages/Settings";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import UserDashboard from "../pages/dashboard/UserDashboard";
 import SuperAdminDashboard from "../pages/dashboard/SuperAdminDashboard";
 
-/* ✅ TAMBAHAN ROLE */
 export type Role = "user" | "admin" | "superadmin";
 
 type DashboardLayoutProps = {
@@ -26,7 +25,7 @@ type MenuItem = {
 };
 
 const roleMenus: Record<Role, MenuKey[]> = {
-  user: ["dashboard", "gis"],
+  user: ["dashboard", "gis", "settings"],
   admin: ["dashboard", "gis", "datakasus", "settings"],
   superadmin: ["dashboard", "gis", "datakasus", "datamaster", "settings"],
 };
@@ -57,10 +56,10 @@ const menuItems: MenuItem[] = [
     label: "Data Kasus",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-      <path d="M14 2v6h6"/>
-      <path d="M8 13h8M8 17h8M8 9h4"/>
-        </svg>
+        <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
+        <path d="M14 2v6h6" />
+        <path d="M8 13h8M8 17h8M8 9h4" />
+      </svg>
     ),
   },
   {
@@ -68,10 +67,10 @@ const menuItems: MenuItem[] = [
     label: "Data Master",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-      <ellipse cx="12" cy="5" rx="7" ry="3"/>
-      <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/>
-      <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>
-        </svg>
+        <ellipse cx="12" cy="5" rx="7" ry="3" />
+        <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" />
+        <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" />
+      </svg>
     ),
   },
   {
@@ -91,29 +90,28 @@ const pageDescriptions: Record<MenuKey, string> = {
   gis: "Peta interaktif GIS.",
   settings: "Konfigurasi akun kalian disini.",
   datakasus: "Manajemen Data Kasus",
-  datamaster: "Manajemen Data Master"
+  datamaster: "Manajemen Data Master",
 };
 
-/* ✅ HANYA TAMBAH PROPS */
 function DashboardLayout({ role: _role }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  /* ✅ OPTIONAL (tidak ubah UI, hanya logic) */
   const filteredMenu = menuItems.filter((item) =>
-  roleMenus[_role].includes(item.key)
-);
+    roleMenus[_role].includes(item.key)
+  );
 
-useEffect(() => {
-  if (!roleMenus[_role].includes(activeMenu)) {
-    setActiveMenu(roleMenus[_role][0]);
-  }
-}, [_role]);
+  useEffect(() => {
+    if (!roleMenus[_role].includes(activeMenu)) {
+      setActiveMenu(roleMenus[_role][0]);
+    }
+  }, [_role]);
 
   const activeItem =
-    filteredMenu.find((item) => item.key === activeMenu) ??
-    filteredMenu[0];
+    filteredMenu.find((item) => item.key === activeMenu) ?? filteredMenu[0];
 
+  // Ctrl+B shortcut untuk collapse sidebar (desktop)
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
@@ -121,27 +119,52 @@ useEffect(() => {
         setIsCollapsed((value) => !value);
       }
     };
-
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  //aktifin child page disini//
-  const pageMap: Record<MenuKey, ReactNode> = {
-  dashboard:
-    _role === "admin" ? <AdminDashboard /> :
-    _role === "superadmin" ? <SuperAdminDashboard /> :
-    <UserDashboard />,
+  // Tutup drawer saat resize ke desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 860) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  gis: <div>GIS Page</div>,
-  datakasus: <Datakasus />,
-  datamaster: <div>Data Master Page</div>,
-  settings: <div>Settings Page</div>,
-};
+  // Kunci scroll body saat drawer terbuka
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  const pageMap: Record<MenuKey, ReactNode> = {
+    dashboard:
+      _role === "admin" ? <AdminDashboard /> :
+      _role === "superadmin" ? <SuperAdminDashboard /> :
+      <UserDashboard />,
+    gis: <div>GIS Page</div>,
+    datakasus: <Datakasus />,
+    datamaster: <div>Data Master Page</div>,
+    settings: <Settings />,
+  };
 
   return (
-    <div className={`dashboard-shell${isCollapsed ? " dashboard-shell--collapsed" : ""}`}>
-      <aside className="dashboard-sidebar">
+    <div
+      className={`dashboard-shell${isCollapsed ? " dashboard-shell--collapsed" : ""}`}
+    >
+      {/* Sidebar / Drawer */}
+      <aside
+        className={`dashboard-sidebar${isMobileMenuOpen ? " dashboard-sidebar--open" : ""}`}
+      >
         <div className="dashboard-sidebar__top">
           <div className="dashboard-logo" title="SIPETA">
             <img src={sipetaLogo} alt="SIPETA" />
@@ -161,7 +184,6 @@ useEffect(() => {
             <span className="sidebar-toggle__logo">
               <img src={sipetaLogoIcon} alt="SIPETA" />
             </span>
-
             <span className="sidebar-toggle__icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -174,10 +196,15 @@ useEffect(() => {
         <nav className="dashboard-menu" aria-label="Menu dashboard SIPETA">
           {filteredMenu.map((item) => (
             <button
-              className={`dashboard-menu__item${activeMenu === item.key ? " dashboard-menu__item--active" : ""}`}
+              className={`dashboard-menu__item${
+                activeMenu === item.key ? " dashboard-menu__item--active" : ""
+              }`}
               key={item.key}
               type="button"
-              onClick={() => setActiveMenu(item.key)}
+              onClick={() => {
+                setActiveMenu(item.key);
+                setIsMobileMenuOpen(false);
+              }}
               title={isCollapsed ? item.label : undefined}
             >
               <span className="dashboard-menu__icon">{item.icon}</span>
@@ -187,11 +214,27 @@ useEffect(() => {
         </nav>
       </aside>
 
+      {/* Konten utama */}
       <div className="dashboard-main">
         <header className="dashboard-header">
-          <div>
-            <h1>{activeItem.label}</h1>
-            <p>{pageDescriptions[activeItem.key]}</p>
+          <div className="dashboard-header__left">
+            {/* Tombol hamburger — hanya tampil di mobile */}
+            <button
+              className="hamburger-btn"
+              type="button"
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+              aria-expanded={isMobileMenuOpen}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+
+            <div>
+              <h1>{activeItem.label}</h1>
+              <p>{pageDescriptions[activeItem.key]}</p>
+            </div>
           </div>
 
           <div className="dashboard-header__right">
@@ -199,15 +242,25 @@ useEffect(() => {
               Export
             </button>
             <div className="dashboard-profile" aria-label="Profil pengguna">
-              <img src="https://i.pravatar.cc/96?img=12" alt="Profil pengguna SIPETA" />
+              <img
+                src="https://i.pravatar.cc/96?img=12"
+                alt="Profil pengguna SIPETA"
+              />
             </div>
           </div>
         </header>
 
-        <main className="dashboard-content">
-          {pageMap[activeMenu]}
-        </main>
+        <main className="dashboard-content">{pageMap[activeMenu]}</main>
       </div>
+
+      {/* Overlay gelap saat drawer terbuka di mobile */}
+      {isMobileMenuOpen && (
+        <div
+          className="mobile-overlay"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
     </div>
   );
 }

@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import sipetaLogo from "../assets/logo.png";
 import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
+
 /* ✅ TAMBAHAN ROLE */
 export type Role = "user" | "admin" | "superadmin";
+
 
 type DashboardLayoutProps = {
   role: Role;
 };
 
-type MenuKey = "dashboard" | "gis" | "settings";
+// type MenuKey = "dashboard" | "gis" | "settings";
+type MenuKey = "dashboard" | "gis" | "settings" | "data-master" | "data-kasus";
 
 type MenuItem = {
   key: MenuKey;
@@ -19,53 +23,115 @@ type MenuItem = {
   icon: ReactNode;
 };
 
-/* ⛔ TIDAK DIUBAH */
-const menuItems: MenuItem[] = [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 13.5 9 8l4 4 7-8" />
-        <path d="M4 20h16" />
-      </svg>
-    ),
-  },
-  {
-    key: "gis",
-    label: "GIS",
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z" />
-        <circle cx="12" cy="10" r="2.5" />
-      </svg>
-    ),
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-        <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 0 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.1 1.65V21.4a2.1 2.1 0 0 1-4.2 0v-.15a1.8 1.8 0 0 0-1.1-1.65 1.8 1.8 0 0 0-1.98.36l-.05.05A2.1 2.1 0 0 1 3.4 17.04l.05-.05A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.65-1.1H2a2.1 2.1 0 0 1 0-4.2h.15A1.8 1.8 0 0 0 3.8 8.6a1.8 1.8 0 0 0-.36-1.98l-.05-.05A2.1 2.1 0 0 1 6.36 3.6l.05.05A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1.1-1.65V2.2a2.1 2.1 0 0 1 4.2 0v.15A1.8 1.8 0 0 0 14.8 4a1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 0 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.1h.15a2.1 2.1 0 0 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z" />
-      </svg>
-    ),
-  },
-];
+
+
+const menuByRole: Record<Role, MenuItem[]> = {
+  user: [
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 13.5 9 8l4 4 7-8" />
+          <path d="M4 20h16" />
+        </svg>
+      ),
+    },
+    {
+      key: "gis",
+      label: "GIS",
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      ),
+    },
+    {
+      key: "settings",
+      label: "Settings",
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+          <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 0 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.1 1.65V21.4a2.1 2.1 0 0 1-4.2 0v-.15a1.8 1.8 0 0 0-1.1-1.65 1.8 1.8 0 0 0-1.98.36l-.05.05A2.1 2.1 0 0 1 3.4 17.04l.05-.05A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.65-1.1H2a2.1 2.1 0 0 1 0-4.2h.15A1.8 1.8 0 0 0 3.8 8.6a1.8 1.8 0 0 0-.36-1.98l-.05-.05A2.1 2.1 0 0 1 6.36 3.6l.05.05A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1.1-1.65V2.2a2.1 2.1 0 0 1 4.2 0v.15A1.8 1.8 0 0 0 14.8 4a1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 0 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.1h.15a2.1 2.1 0 0 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z" />
+        </svg>
+      ),
+    },
+  ],
+
+  admin: [
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: (
+        <svg viewBox="0 0 24 24">
+          <path d="M4 13.5 9 8l4 4 7-8" />
+          <path d="M4 20h16" />
+        </svg>
+      ),
+    },
+    {
+      key: "gis",
+      label: "GIS",
+      icon: (
+        <svg viewBox="0 0 24 24">
+          <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      ),
+    },
+
+    // 🔥 TAMBAHAN ADMIN
+    {
+      key: "data-master",
+      label: "Data Master",
+      icon: (
+        <svg viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      ),
+    },
+    {
+      key: "data-kasus",
+      label: "Data Kasus",
+      icon: (
+        <svg viewBox="0 0 24 24">
+          <path d="M4 18v-6M10 18v-10M16 18v-4M22 18v-8" />
+        </svg>
+      ),
+    },
+
+    {
+      key: "settings",
+      label: "Settings",
+      icon: (
+        <svg viewBox="0 0 24 24">
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+          <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 0 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.1 1.65V21.4a2.1 2.1 0 0 1-4.2 0v-.15a1.8 1.8 0 0 0-1.1-1.65 1.8 1.8 0 0 0-1.98.36l-.05.05A2.1 2.1 0 0 1 3.4 17.04l.05-.05A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.65-1.1H2a2.1 2.1 0 0 1 0-4.2h.15A1.8 1.8 0 0 0 3.8 8.6a1.8 1.8 0 0 0-.36-1.98l-.05-.05A2.1 2.1 0 0 1 6.36 3.6l.05.05A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1.1-1.65V2.2a2.1 2.1 0 0 1 4.2 0v.15A1.8 1.8 0 0 0 14.8 4a1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 0 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.1h.15a2.1 2.1 0 0 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z" />
+        </svg>
+      ),
+    },
+  ],
+
+  superadmin: [], // nanti bebas
+};
 
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
   gis: "Tampilan peta GIS akan ditempatkan di area child page.",
   settings: "Konfigurasi sistem akan ditempatkan di area child page.",
+  "data-master": "Halaman untuk mengelola data master.",
+  "data-kasus": "Halaman untuk mengelola data kasus.",
 };
 
 /* ✅ HANYA TAMBAH PROPS */
-function DashboardLayout({ role: _role }: DashboardLayoutProps) {
+function DashboardLayout({ role }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
 
   /* ✅ OPTIONAL (tidak ubah UI, hanya logic) */
-  const filteredMenu = menuItems;
+  // const filteredMenu = menuItems;
+  const filteredMenu = menuByRole[role];
 
   const activeItem =
     filteredMenu.find((item) => item.key === activeMenu) ??
@@ -148,7 +214,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
           </div>
         </header>
 
-        <main className="dashboard-content">
+        {/* <main className="dashboard-content">
           <section className="layout-preview-card">
             <span>Child Page Area</span>
             <h2>{activeItem.label}</h2>
@@ -156,6 +222,9 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
               Area ini nanti diisi child page {activeItem.label}.
             </p>
           </section>
+        </main> */}
+        <main className="dashboard-content">
+          <Outlet />
         </main>
       </div>
     </div>

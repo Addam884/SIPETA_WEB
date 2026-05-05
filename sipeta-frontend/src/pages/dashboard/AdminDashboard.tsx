@@ -5,7 +5,7 @@ export default function AdminDashboard() {
     <div>
       {/* Header & Filters */}
       <div className="dashboard-header">
-        <h1 className="dashboard-title">Dashboard</h1>
+        
         <div className="dashboard-filters">
           <select className="filter-select">
             <option>Timeframe: All-time</option>
@@ -44,17 +44,62 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           <div className="card-v2">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-              <h3 className="card-title" style={{ marginBottom: 0 }}>Grafik Tren Penyakit</h3>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Penyakit v Month v</span>
+            <div className="chart-header">
+              <h3 className="card-title" style={{ marginBottom: 0 }}>
+                Grafik Tren Penyakit
+              </h3>
+
+              <div className="chart-filters">
+                <select className="filter-select-sm">
+                  <option value="penyakit">Semua Penyakit</option>
+                  <option value="ispa">ISPA</option>
+                  <option value="tbc">TBC</option>
+                  <option value="hiv">HIV/AIDS</option>
+                  <option value="dbd">DBD</option>
+                </select>
+
+                <select className="filter-select-sm">
+                  <option value="month">Bulanan</option>
+                  <option value="week">Mingguan</option>
+                  <option value="year">Tahunan</option>
+                </select>
+              </div>
             </div>
             
             {/* Mockup Bar Chart */}
-            <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '8px' }}>
-              {[30, 45, 45, 75, 85, 60, 30, 85, 100, 110, 120].map((h, i) => (
-                <div key={i} style={{ width: '100%', backgroundColor: '#3b82f6', height: `${h}px`, borderRadius: '4px 4px 0 0' }}></div>
-              ))}
-            </div>
+           <div className="trend-chart">
+            <svg viewBox="0 0 600 200" className="trend-svg">
+
+              {/* area fill */}
+              <path
+                d="
+                  M0,160
+                  C60,140 120,150 180,100
+                  C240,50 300,130 360,150
+                  C420,170 480,60 540,50
+                  C570,45 590,40 600,40
+                  L600,200 L0,200 Z
+                "
+                fill="rgba(59,130,246,0.15)"
+              />
+
+              {/* line */}
+              <path
+                d="
+                  M0,160
+                  C60,140 120,150 180,100
+                  C240,50 300,130 360,150
+                  C420,170 480,60 540,50
+                  C570,45 590,40 600,40
+                "
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span>
             </div>

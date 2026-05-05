@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "../styles/Settings.css";
+import api from "../services/api";
 
 type SettingsProps = {
   initialData?: {
@@ -11,20 +12,23 @@ type SettingsProps = {
 };
 
 function Settings({ initialData }: SettingsProps) {
+  // 🔥 fallback default
   const defaultData = {
-    name: "Adam Yanuar",
-    email: "adam@gmail.com",
-    phone: "085**********",
+    name: "",
+    email: "",
+    phone: "",
     avatar: "https://i.pravatar.cc/96?img=12",
   };
 
   const data = initialData ?? defaultData;
 
+  // 🔥 STATE (langsung pakai default biar gak kosong dulu)
   const [profileForm, setProfileForm] = useState({
     name: data.name,
     email: data.email,
     phone: data.phone,
   });
+
   const [avatar, setAvatar] = useState<string>(data.avatar ?? "");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -34,59 +38,100 @@ function Settings({ initialData }: SettingsProps) {
     newPass: "",
     confirm: "",
   });
+
   const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSaved, setPasswordSaved] = useState(false);
+
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     newPass: false,
     confirm: false,
   });
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSaved, setPasswordSaved] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* ─── Avatar upload ─── */
+  // 🔥 FETCH PROFILE (override default)
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/profile");
+
+        setProfileForm({
+          name: res.data.name,
+          email: res.data.email,
+          phone: res.data.phone || "",
+        });
+
+        setAvatar(res.data.avatar || "");
+      } catch (err) {
+        console.error("Gagal ambil profile");
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  /* ─── Avatar ─── */
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = () => setAvatar(reader.result as string);
     reader.readAsDataURL(file);
   }
 
-  /* ─── Profile save ─── */
-  function handleSaveProfile() {
-    setIsEditingProfile(false);
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 2500);
+  /* ─── Save Profile ─── */
+  async function handleSaveProfile() {
+    try {
+      await api.put("/profile", profileForm);
+
+      setIsEditingProfile(false);
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2500);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Gagal update profile");
+    }
   }
 
-  /* ─── Password save ─── */
-  function handleSavePassword() {
+  /* ─── Save Password ─── */
+  async function handleSavePassword() {
     setPasswordError("");
+
     if (!passwordForm.current) {
       setPasswordError("Password saat ini wajib diisi.");
       return;
     }
+
     if (passwordForm.newPass.length < 8) {
-      setPasswordError("Password baru minimal 8 karakter.");
+      setPasswordError("Password minimal 8 karakter.");
       return;
     }
+
     if (passwordForm.newPass !== passwordForm.confirm) {
-      setPasswordError("Konfirmasi password tidak cocok.");
+      setPasswordError("Password tidak cocok.");
       return;
     }
-    setIsEditingPassword(false);
-    setPasswordForm({ current: "", newPass: "", confirm: "" });
-    setPasswordSaved(true);
-    setTimeout(() => setPasswordSaved(false), 2500);
+
+    try {
+      await api.put("/password", passwordForm);
+
+      setIsEditingPassword(false);
+      setPasswordForm({ current: "", newPass: "", confirm: "" });
+
+      setPasswordSaved(true);
+      setTimeout(() => setPasswordSaved(false), 2500);
+    } catch (err: any) {
+      setPasswordError(err.response?.data?.message || "Gagal update password");
+    }
   }
 
   function toggleShow(field: keyof typeof showPasswords) {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   }
 
-  return (
+   return (
     <div className="settings-page">
       {/* ── Avatar + name ── */}
       <section className="settings-card settings-profile-header">

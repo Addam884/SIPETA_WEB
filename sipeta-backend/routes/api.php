@@ -7,6 +7,7 @@ use App\Http\Controllers\PenyakitController;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\FaskesController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,12 @@ use App\Http\Controllers\AuthController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [SettingsController::class, 'profile']);
+    Route::put('/profile', [SettingsController::class, 'updateProfile']);
+    Route::put('/password', [SettingsController::class, 'updatePassword']);
 });
 
 Route::get('kasus/statistik', [KasusController::class, 'statistik']);

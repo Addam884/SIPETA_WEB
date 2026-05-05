@@ -1,32 +1,41 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Tambahkan useNavigate
 import "../styles/Login.css";
+import api from "../services/api.ts";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  
+
   const navigate = useNavigate(); // Inisialisasi useNavigate
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log({
-      email,
-      password,
-      remember
-    });
+    try {
+      const res = await api.post("/login", {
+        email,
+        password,
+      });
 
-    // SIMULASI LOGIN API & ROLE ROUTING
-    // Nanti logika ini diganti dengan response dari backend Laravel kamu
-    if (email === 'admin@sipeta.com') {
-      navigate('/admin/dashboard');
-    } else if (email === 'superadmin@sipeta.com') {
-      navigate('/superadmin/dashboard');
-    } else {
-      // Default: lempar ke dashboard user biasa
-      navigate('/user/dashboard');
+      const { token, user } = res.data;
+
+      // 🔥 simpan token & role
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+
+      // 🔥 routing berdasarkan role
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "superadmin") {
+        navigate("/superadmin/dashboard");
+      } else {
+        navigate("/user/dashboard");
+      }
+
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Login gagal");
     }
   };
 

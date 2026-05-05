@@ -6,6 +6,7 @@ use App\Http\Controllers\KasusController;
 use App\Http\Controllers\PenyakitController;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\FaskesController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,8 @@ Route::get('kasus/statistik', [KasusController::class, 'statistik']);
 Route::get('faskes', [FaskesController::class, 'index']);
 Route::post('kasus/import', [KasusController::class, 'bulkImport']);
 Route::delete('kasus/bulkDelete', [KasusController::class, 'bulkDelete']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
 
 // API Resource Routes

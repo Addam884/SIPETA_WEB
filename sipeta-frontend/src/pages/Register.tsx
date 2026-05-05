@@ -1,5 +1,7 @@
 import { useState } from "react";
 import "../styles/Login.css";
+import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
     const [name, setName] = useState("");
@@ -7,23 +9,29 @@ function Register() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const navigate = useNavigate();
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        // Validasi sederhana
-        if (password !== confirmPassword) {
-            alert("Password tidak sama!");
-            return;
-        }
+    if (password !== confirmPassword) {
+        alert("Password tidak sama!");
+        return;
+    }
 
-        console.log({
+    try {
+        await api.post("/register", {
             name,
             email,
             password,
         });
 
-        // TODO: panggil API register di sini
-    };
+        alert("Register berhasil!");
+        navigate("/login");
+
+    } catch (err: any) {
+        alert(err.response?.data?.message || "Register gagal");
+    }
+};
 
     return (
         <div className="login-page">

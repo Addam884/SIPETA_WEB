@@ -22,7 +22,7 @@ function MapSection() {
     <section className="map-section">
 
       <div className="section-header">
-        <div className="section-tag">Peta Interaktif</div>
+        <div className="section-tag">Peta Penyakit</div>
         <h2 className="section-title">Peta Penyebaran Penyakit</h2>
         <p className="section-sub">
           Visualisasi real-time penyebaran penyakit berdasarkan wilayah kecamatan

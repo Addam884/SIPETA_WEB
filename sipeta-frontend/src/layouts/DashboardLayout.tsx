@@ -85,18 +85,6 @@ const menuItems: MenuItem[] = [
 ];
 
 
-const logoutItem: MenuItem = {
-  key: "logout" as any,
-  label: "Logout",
-  icon: (
-    <svg viewBox="0 0 24 24">
-      <path d="M16 17l5-5-5-5" />
-      <path d="M21 12H9" />
-      <path d="M9 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4" />
-    </svg>
-  ),
-};
-
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
   gis: "Peta interaktif GIS.",

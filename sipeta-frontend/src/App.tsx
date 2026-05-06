@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -21,7 +22,14 @@ function App() {
       <Route path="/register" element={<Register />} />
 
       {/* USER */}
-      <Route path="/user" element={<DashboardLayout role="user" />}>
+      <Route
+        path="/user/*"
+        element={
+          <ProtectedRoute allowedRoles={["user"]}>
+            <DashboardLayout role="user" />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<UserDashboard />} />
         <Route path="gis" element={<div>GIS</div>} />
@@ -29,7 +37,14 @@ function App() {
       </Route>
 
       {/* ADMIN */}
-      <Route path="/admin" element={<DashboardLayout role="admin" />}>
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+            <DashboardLayout role="admin" />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="gis" element={<div>GIS</div>} />
@@ -38,7 +53,14 @@ function App() {
       </Route>
 
       {/* SUPERADMIN */}
-      <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
+      <Route
+        path="/superadmin/*"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <DashboardLayout role="superadmin" />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<SuperadminDashboard />} />
         <Route path="gis" element={<div>GIS</div>} />
@@ -48,7 +70,7 @@ function App() {
       </Route>
 
       {/* FALLBACK */}
-      <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

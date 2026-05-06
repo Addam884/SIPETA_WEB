@@ -7,11 +7,12 @@ type User = {
   email: string;
   phone?: string;
   avatar?: string;
-  role_id: number;
+  role: "user" | "admin" | "superadmin";
 };
 
 type AuthContextType = {
   user: User | null;
+   loading: boolean;
   fetchUser: () => Promise<void>;
   setUser: (user: User | null) => void;
   logout: () => void;
@@ -21,22 +22,26 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setUser(null);
-        return;
-      }
+  try {
+    const token = localStorage.getItem("token");
 
-      const res = await api.get("/profile");
-      setUser(res.data);
-
-    } catch {
+    if (!token) {
       setUser(null);
+      setLoading(false);
+      return;
     }
-  };
+
+    const res = await api.get("/profile");
+    setUser(res.data);
+  } catch {
+    setUser(null);
+  } finally {
+    setLoading(false); // ✅ WAJIB
+  }
+};
 
   useEffect(() => {
     fetchUser();
@@ -48,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, fetchUser, setUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, fetchUser, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

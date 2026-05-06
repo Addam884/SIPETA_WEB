@@ -28,14 +28,7 @@ function Login() {
 
       setUser(user);
 
-      // 🔥 redirect role
-      const roleMap: Record<number, string> = {
-        1: "superadmin",
-        2: "admin",
-        3: "user",
-      };
-
-      navigate(`/${roleMap[user.role_id]}/dashboard`);
+      navigate(`/${user.role}/dashboard`);
 
     } catch (err: any) {
       alert(err.response?.data?.message || "Login gagal");

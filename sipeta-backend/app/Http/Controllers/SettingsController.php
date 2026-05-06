@@ -21,7 +21,7 @@ class SettingsController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'avatar' => $user->avatar,
-            'role_id' => $user->role_id
+            'role' => $user->role->name
         ]);
     }
 
@@ -68,7 +68,7 @@ class SettingsController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'avatar' => $user->avatar,
-                'role_id' => $user->role_id
+                'role' => $user->role->name
             ]
         ]);
     }

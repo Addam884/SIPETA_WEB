@@ -17,7 +17,6 @@ function Settings() {
   const [preview, setPreview] = useState("");
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
     current: "",
@@ -27,7 +26,6 @@ function Settings() {
 
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-  const [passwordSaved, setPasswordSaved] = useState(false);
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -289,12 +287,6 @@ function Settings() {
             </button>
           </div>
         )}
-
-        {profileSaved && (
-          <p className="settings-toast settings-toast--success">
-            ✓ Profil berhasil disimpan.
-          </p>
-        )}
       </section>
 
       {/* ── Keamanan ── */}
@@ -420,11 +412,6 @@ function Settings() {
           </>
         )}
 
-        {passwordSaved && (
-          <p className="settings-toast settings-toast--success">
-            ✓ Password berhasil diubah.
-          </p>
-        )}
       </section>
 
     </div>

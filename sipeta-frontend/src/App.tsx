@@ -1,34 +1,53 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperadminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import UserDashboard from "./pages/dashboard/UserDashboard";
-import Register from "./pages/Register";
+
+import Datakasus from "./pages/datakasus";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
     <Routes>
+      {/* PUBLIC */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
+      {/* USER */}
       <Route path="/user" element={<DashboardLayout role="user" />}>
-        <Route index element={<Navigate to="/user/dashboard" replace />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<UserDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
+      {/* ADMIN */}
       <Route path="/admin" element={<DashboardLayout role="admin" />}>
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="datakasus" element={<Datakasus />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
+      {/* SUPERADMIN */}
       <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
-        <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<SuperadminDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="datakasus" element={<Datakasus />} />
+        <Route path="datamaster" element={<div>Data Master</div>} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
+      {/* FALLBACK */}
       <Route path="/dashboard" element={<Navigate to="/login" replace />} />
     </Routes>
   );

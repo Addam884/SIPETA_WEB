@@ -11,6 +11,7 @@ import SuperadminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 
 import Datakasus from "./pages/datakasus";
+import GIS from "./pages/GIS"; 
 import Settings from "./pages/Settings";
 
 function App() {
@@ -32,7 +33,7 @@ function App() {
       >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<UserDashboard />} />
-        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="gis" element={<GIS />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 
@@ -47,7 +48,7 @@ function App() {
       >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="gis" element={<GIS />} />
         <Route path="datakasus" element={<Datakasus />} />
         <Route path="settings" element={<Settings />} />
       </Route>

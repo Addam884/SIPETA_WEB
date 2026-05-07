@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+
 import sipetaLogo from "../assets/logo.png";
 import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
-import Datakasus from "../pages/datakasus.tsx";
-import GIS from "../pages/GIS";
-import Settings from "../pages/Settings";
-import AdminDashboard from "../pages/dashboard/AdminDashboard";
-import UserDashboard from "../pages/dashboard/UserDashboard";
-import SuperAdminDashboard from "../pages/dashboard/SuperAdminDashboard";
+import { useAuth } from "../context/AuthContext";
 
 export type Role = "user" | "admin" | "superadmin";
 
@@ -86,6 +84,7 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
   gis: "Peta interaktif GIS.",
@@ -94,20 +93,32 @@ const pageDescriptions: Record<MenuKey, string> = {
   datamaster: "Manajemen Data Master",
 };
 
-function DashboardLayout({ role: _role }: DashboardLayoutProps) {
+export default function DashboardLayout({ role }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<MenuKey>("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useAuth();
+
+  // Ambil base path dari segment pertama URL (misal: /admin, /user, /superadmin)
+  const basePath = "/" + location.pathname.split("/")[1];
+
+  // Filter menu sesuai role
   const filteredMenu = menuItems.filter((item) =>
-    roleMenus[_role].includes(item.key)
+    roleMenus[role].includes(item.key)
   );
 
-  useEffect(() => {
-    if (!roleMenus[_role].includes(activeMenu)) {
-      setActiveMenu(roleMenus[_role][0]);
-    }
-  }, [_role]);
+  // Tentukan active menu berdasarkan URL saat ini
+  const getMenuFromPath = (pathname: string): MenuKey => {
+    if (pathname.includes("/settings")) return "settings";
+    if (pathname.includes("/datakasus")) return "datakasus";
+    if (pathname.includes("/datamaster")) return "datamaster";
+    if (pathname.includes("/gis")) return "gis";
+    return "dashboard";
+  };
+
+  const activeMenu = getMenuFromPath(location.pathname);
 
   const activeItem =
     filteredMenu.find((item) => item.key === activeMenu) ?? filteredMenu[0];
@@ -117,7 +128,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
         event.preventDefault();
-        setIsCollapsed((value) => !value);
+        setIsCollapsed((v) => !v);
       }
     };
     window.addEventListener("keydown", handleShortcut);
@@ -137,26 +148,11 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
 
   // Kunci scroll body saat drawer terbuka
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
-
-  const pageMap: Record<MenuKey, ReactNode> = {
-    dashboard:
-      _role === "admin" ? <AdminDashboard /> :
-      _role === "superadmin" ? <SuperAdminDashboard /> :
-      <UserDashboard />,
-    gis: <GIS />,
-    datakasus: <Datakasus />,
-    datamaster: <div>Data Master Page</div>,
-    settings: <Settings />,
-  };
 
   return (
     <div
@@ -174,7 +170,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
           <button
             className="sidebar-toggle"
             type="button"
-            onClick={() => setIsCollapsed((value) => !value)}
+            onClick={() => setIsCollapsed((v) => !v)}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             data-tooltip={
               isCollapsed
@@ -197,13 +193,16 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
         <nav className="dashboard-menu" aria-label="Menu dashboard SIPETA">
           {filteredMenu.map((item) => (
             <button
-              className={`dashboard-menu__item${
-                activeMenu === item.key ? " dashboard-menu__item--active" : ""
-              }`}
               key={item.key}
+              className={`dashboard-menu__item${activeMenu === item.key ? " dashboard-menu__item--active" : ""
+                }`}
               type="button"
               onClick={() => {
-                setActiveMenu(item.key);
+                navigate(
+                  item.key === "dashboard"
+                    ? `${basePath}/dashboard`
+                    : `${basePath}/${item.key}`
+                );
                 setIsMobileMenuOpen(false);
               }}
               title={isCollapsed ? item.label : undefined}
@@ -213,6 +212,38 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
             </button>
           ))}
         </nav>
+        <div className="dashboard-sidebar__bottom">
+          <button
+            className="dashboard-menu__item dashboard-menu__item--logout"
+            onClick={() => {
+              Swal.fire({
+                title: "Apakah Anda yakin?",
+                text: "Anda akan keluar dari sistem",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ff4d4f",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: "Ya, Logout",
+                cancelButtonText: "Batal",
+                reverseButtons: true,
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  logout();
+                  navigate("/login");
+                }
+              });
+            }}
+          >
+            <span className="dashboard-menu__icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+                <path d="M9 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4" />
+              </svg>
+            </span>
+            <span className="dashboard-menu__label">Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* Konten utama */}
@@ -242,16 +273,30 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
             <button className="header-action" type="button">
               Export
             </button>
-            <div className="dashboard-profile" aria-label="Profil pengguna">
+
+            {/* Avatar → navigasi ke settings */}
+            <div
+              className="dashboard-profile"
+              aria-label="Profil pengguna"
+              onClick={() => navigate(`${basePath}/settings`)}
+              style={{ cursor: "pointer" }}
+            >
               <img
-                src="https://i.pravatar.cc/96?img=12"
-                alt="Profil pengguna SIPETA"
+                src={
+                  user?.avatar
+                    ? `http://127.0.0.1:8000/storage/${user.avatar}`
+                    : "https://i.pravatar.cc/96"
+                }
+                alt="Profil pengguna"
               />
             </div>
           </div>
         </header>
 
-        <main className="dashboard-content">{pageMap[activeMenu]}</main>
+        {/* Outlet menggantikan pageMap — render child route di sini */}
+        <main className="dashboard-content">
+          <Outlet />
+        </main>
       </div>
 
       {/* Overlay gelap saat drawer terbuka di mobile */}
@@ -265,5 +310,3 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
     </div>
   );
 }
-
-export default DashboardLayout;

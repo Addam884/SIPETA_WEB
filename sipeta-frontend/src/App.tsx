@@ -1,35 +1,76 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperadminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import UserDashboard from "./pages/dashboard/UserDashboard";
-import Register from "./pages/Register";
+
+import Datakasus from "./pages/datakasus";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
     <Routes>
+      {/* PUBLIC */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route path="/user" element={<DashboardLayout role="user" />}>
-        <Route index element={<Navigate to="/user/dashboard" replace />} />
+      {/* USER */}
+      <Route
+        path="/user/*"
+        element={
+          <ProtectedRoute allowedRoles={["user"]}>
+            <DashboardLayout role="user" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<UserDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
-      <Route path="/admin" element={<DashboardLayout role="admin" />}>
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+      {/* ADMIN */}
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+            <DashboardLayout role="admin" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="datakasus" element={<Datakasus />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
-      <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
-        <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
+      {/* SUPERADMIN */}
+      <Route
+        path="/superadmin/*"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <DashboardLayout role="superadmin" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<SuperadminDashboard />} />
+        <Route path="gis" element={<div>GIS</div>} />
+        <Route path="datakasus" element={<Datakasus />} />
+        <Route path="datamaster" element={<div>Data Master</div>} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
-      <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

@@ -565,3 +565,25 @@
     display: none;
   }
 }
+.dashboard-menu__item--logout {
+  color: #ff4d4f;
+}
+
+.dashboard-menu__item--logout:hover {
+  background: rgba(255, 77, 79, 0.1);
+}
+
+.dashboard-menu__item--logout {
+  color: #ff4d4f;
+}
+
+/* 🔥 override hover default */
+.dashboard-menu__item--logout:hover {
+  background: rgba(255, 77, 79, 0.12) !important;
+  color: #ff4d4f !important;
+  transform: translateX(2px);
+}
+
+.dashboard-menu {
+  flex: 1;
+}

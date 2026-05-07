@@ -1,37 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import "../styles/Settings.css";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
-type SettingsProps = {
-  initialData?: {
-    name: string;
-    email: string;
-    phone: string;
-    avatar?: string;
-  };
-};
+function Settings() {
+  const { user, fetchUser } = useAuth();
 
-function Settings({ initialData }: SettingsProps) {
-  // 🔥 fallback default
-  const defaultData = {
+  const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
     phone: "",
-    avatar: "https://i.pravatar.cc/96?img=12",
-  };
-
-  const data = initialData ?? defaultData;
-
-  // 🔥 STATE (langsung pakai default biar gak kosong dulu)
-  const [profileForm, setProfileForm] = useState({
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
   });
 
-  const [avatar, setAvatar] = useState<string>(data.avatar ?? "");
+  const [avatar, setAvatar] = useState("");
+  const [preview, setPreview] = useState("");
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
     current: "",
@@ -41,7 +26,6 @@ function Settings({ initialData }: SettingsProps) {
 
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-  const [passwordSaved, setPasswordSaved] = useState(false);
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -51,66 +35,101 @@ function Settings({ initialData }: SettingsProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 🔥 FETCH PROFILE (override default)
+  // 🔥 SYNC DARI AUTH CONTEXT
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get("/profile");
+    if (!user) return;
 
-        setProfileForm({
-          name: res.data.name,
-          email: res.data.email,
-          phone: res.data.phone || "",
-        });
+    setProfileForm({
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+    });
 
-        setAvatar(res.data.avatar || "");
-      } catch (err) {
-        console.error("Gagal ambil profile");
-      }
-    };
+    setAvatar(user.avatar || "");
+  }, [user]);
 
-    fetchProfile();
-  }, []);
-
-  /* ─── Avatar ─── */
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  /* ─── AVATAR AUTO UPLOAD ─── */
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 🔥 VALIDASI SIZE
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Ukuran gambar maksimal 2MB");
+      return;
+    }
+
+    // preview
     const reader = new FileReader();
-    reader.onload = () => setAvatar(reader.result as string);
+    reader.onload = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
-  }
 
-  /* ─── Save Profile ─── */
-  async function handleSaveProfile() {
     try {
-      await api.put("/profile", profileForm);
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-      setIsEditingProfile(false);
-      setProfileSaved(true);
-      setTimeout(() => setProfileSaved(false), 2500);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal update profile");
+      await toast.promise(
+        api.post("/profile", formData),
+        {
+          loading: "Uploading...",
+          success: "Berhasil upload avatar",
+          error: "Gagal upload avatar",
+        }
+      );
+
+      const res = await api.post("/profile", formData);
+
+      // 🔥 ambil avatar terbaru dari response
+      const newAvatar = res.data.user.avatar;
+
+      // 🔥 update langsung state (INI KUNCI)
+      setAvatar(newAvatar);
+
+      // 🔥 sync global user (biar navbar ikut update)
+      await fetchUser();
+
+      setPreview("");
+
+    } catch (err) {
+      console.log(err); // ❌ jangan toast lagi
     }
   }
 
-  /* ─── Save Password ─── */
+  /* ─── SAVE PROFILE ─── */
+  async function handleSaveProfile() {
+    try {
+      const formData = new FormData();
+      formData.append("name", profileForm.name);
+      formData.append("email", profileForm.email);
+      formData.append("phone", profileForm.phone);
+
+      await api.post("/profile", formData);
+      await fetchUser();
+
+      setIsEditingProfile(false);
+
+      toast.success("Profil berhasil diperbarui");
+    } catch {
+      toast.error("Gagal update profile");
+    }
+  }
+
+  /* ─── SAVE PASSWORD ─── */
   async function handleSavePassword() {
     setPasswordError("");
 
     if (!passwordForm.current) {
-      setPasswordError("Password saat ini wajib diisi.");
+      toast.warning("Password saat ini wajib diisi");
       return;
     }
 
-    if (passwordForm.newPass.length < 8) {
-      setPasswordError("Password minimal 8 karakter.");
+    if (passwordForm.newPass.length < 6) {
+      toast.warning("Password minimal 6 karakter");
       return;
     }
 
     if (passwordForm.newPass !== passwordForm.confirm) {
-      setPasswordError("Password tidak cocok.");
+      toast.error("Password tidak cocok");
       return;
     }
 
@@ -120,25 +139,33 @@ function Settings({ initialData }: SettingsProps) {
       setIsEditingPassword(false);
       setPasswordForm({ current: "", newPass: "", confirm: "" });
 
-      setPasswordSaved(true);
-      setTimeout(() => setPasswordSaved(false), 2500);
+      toast.success("Password berhasil diubah");
     } catch (err: any) {
-      setPasswordError(err.response?.data?.message || "Gagal update password");
+      toast.error(err.response?.data?.message || "Gagal update password");
     }
   }
 
   function toggleShow(field: keyof typeof showPasswords) {
-    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   }
 
-   return (
+  return (
     <div className="settings-page">
       {/* ── Avatar + name ── */}
       <section className="settings-card settings-profile-header">
         <div className="sph-avatar-wrap">
           <img
             className="sph-avatar"
-            src={avatar || "https://i.pravatar.cc/96?img=12"}
+            src={
+              preview
+                ? preview
+                : avatar
+                  ? `http://127.0.0.1:8000/storage/${avatar}`
+                  : "https://i.pravatar.cc/96"
+            }
             alt="Foto profil"
           />
           <button
@@ -244,13 +271,9 @@ function Settings({ initialData }: SettingsProps) {
             <button
               className="settings-btn settings-btn--ghost"
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                await fetchUser(); // 🔥 BALIKIN DATA
                 setIsEditingProfile(false);
-                setProfileForm({
-                  name: data.name,
-                  email: data.email,
-                  phone: data.phone,
-                });
               }}
             >
               Batal
@@ -263,12 +286,6 @@ function Settings({ initialData }: SettingsProps) {
               Simpan
             </button>
           </div>
-        )}
-
-        {profileSaved && (
-          <p className="settings-toast settings-toast--success">
-            ✓ Profil berhasil disimpan.
-          </p>
         )}
       </section>
 
@@ -395,13 +412,10 @@ function Settings({ initialData }: SettingsProps) {
           </>
         )}
 
-        {passwordSaved && (
-          <p className="settings-toast settings-toast--success">
-            ✓ Password berhasil diubah.
-          </p>
-        )}
       </section>
+
     </div>
+
   );
 }
 

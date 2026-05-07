@@ -241,10 +241,37 @@
   transition: color 0.2s;
 }
 
+/* EYE ICON */
+.form-group__eye {
+  position: absolute;
+  right: 14px;        /* sama dengan padding kiri icon */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #c0cad8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 16px;        /* sama dengan ukuran icon lainnya */
+  height: 16px;
+}
+
+.form-group__eye svg {
+  width: 16px;
+  height: 16px;
+}
+
+.form-group__eye:hover {
+  color: var(--primary-light);
+}
+
 .form-group input {
   width: 100%;
   height: 50px;
-  padding: 0 14px 0 44px;
+  padding: 0 40px 0 44px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: #f7fafd;
@@ -403,3 +430,4 @@
   .login-right { padding: 48px 24px; }
   .login-card { width: 100%; max-width: 420px; padding: 36px 28px; }
 }
+

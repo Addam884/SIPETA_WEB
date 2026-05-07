@@ -344,3 +344,15 @@
     grid-column: 1;
   }
 }
+
+/* 🔥 HILANGKAN ICON PASSWORD BAWAAN BROWSER */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* Chrome / Edge */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}

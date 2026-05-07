@@ -9,6 +9,8 @@ class Wilayah extends Model
 {
     protected $table = 'wilayah';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'nama_wilayah',
         'level',
@@ -18,5 +20,20 @@ class Wilayah extends Model
     public function kasus()
     {
         return $this->hasMany(Kasus::class);
+    }
+
+    public function faskes()
+    {
+        return $this->hasMany(Faskes::class);
+    }
+ 
+    public function populasi()
+    {
+        return $this->hasMany(Populasi::class);
+    }
+ 
+    public function hasilClustering()
+    {
+        return $this->hasMany(HasilClustering::class);
     }
 }

@@ -24,7 +24,7 @@ function About() {
 
             <div className="highlight-item">
               <div className="highlight-icon">✓</div>
-              <span>Pembaruan data otomatis setiap hari</span>
+              <span>Pembaruan data otomatis</span>
             </div>
 
           </div>

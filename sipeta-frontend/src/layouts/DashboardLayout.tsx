@@ -5,6 +5,7 @@ import sipetaLogoIcon from "../assets/logo2.png";
 import "../styles/DashboardLayout.css";
 
 import Datakasus from "../pages/datakasus.tsx";
+import GIS from "../pages/GIS";
 import Settings from "../pages/Settings";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import UserDashboard from "../pages/dashboard/UserDashboard";
@@ -151,7 +152,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
       _role === "admin" ? <AdminDashboard /> :
       _role === "superadmin" ? <SuperAdminDashboard /> :
       <UserDashboard />,
-    gis: <div>GIS Page</div>,
+    gis: <GIS />,
     datakasus: <Datakasus />,
     datamaster: <div>Data Master Page</div>,
     settings: <Settings />,

@@ -1,0 +1,492 @@
+/* ── GIS.css ─────────────────────────────────────────────────────────────── */
+
+.gis-page {
+  padding: 20px 24px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+
+.gis-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.gis-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.gis-topbar-right {
+  display: flex;
+  gap: 10px;
+}
+
+.gis-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 0.5px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.gis-download-btn:hover { background: #f9fafb; }
+
+/* ── Filter bar ─────────────────────────────────────────────────────────── */
+
+.gis-filterbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Clustering panel ───────────────────────────────────────────────────── */
+
+.gis-cluster-panel {
+  background: #fff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.gis-cluster-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.gis-cluster-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.gis-cluster-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #a32d2d;
+}
+
+.gis-cluster-result {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid #e5e7eb;
+}
+
+.gis-cluster-result-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3B6D11;
+  margin-bottom: 8px;
+}
+
+.gis-cluster-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.gis-cluster-chip {
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.gis-chip-rendah  { background: #dcfce7; color: #166534; }
+.gis-chip-sedang  { background: #fef9c3; color: #854d0e; }
+.gis-chip-tinggi  { background: #fee2e2; color: #991b1b; }
+
+.gis-cluster-dbi {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ── Main layout ────────────────────────────────────────────────────────── */
+
+.gis-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .gis-main-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Left column ────────────────────────────────────────────────────────── */
+
+.gis-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Map ────────────────────────────────────────────────────────────────── */
+
+.gis-map-wrap {
+  position: relative;
+  height: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0.5px solid #e5e7eb;
+  background: #e5e7eb;
+}
+
+.gis-map-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255,255,255,.7);
+  font-size: 13px;
+  color: #6b7280;
+  z-index: 999;
+}
+
+/* ── Leaflet overrides ──────────────────────────────────────────────────── */
+
+.leaflet-container { border-radius: 12px; font-family: inherit; z-index: 0; }
+.leaflet-tooltip   { padding: 6px 10px; border-radius: 8px; border: 0.5px solid #e5e7eb; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.leaflet-popup-content-wrapper { border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+
+/* ── Legenda ────────────────────────────────────────────────────────────── */
+
+.gis-legend {
+  position: absolute;
+  bottom: 24px;
+  left: 12px;
+  background: rgba(255,255,255,.95);
+  border-radius: 8px;
+  padding: 10px 14px;
+  z-index: 999;
+  border: 0.5px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.gis-legend-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.gis-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.gis-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(0,0,0,.1);
+  flex-shrink: 0;
+}
+
+/* ── Epidemiologi card ──────────────────────────────────────────────────── */
+
+.gis-epi-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 0.5px solid #e5e7eb;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+.gis-filter-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 0.5px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.gis-filter-btn:hover { background: #f3f4f6; }
+
+/* ── Right column: Detail panel ─────────────────────────────────────────── */
+
+.gis-right-col { position: sticky; top: 16px; }
+
+.gis-detail-panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 0.5px solid #e5e7eb;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gis-detail-empty {
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.gis-detail-hint {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0 20px;
+  gap: 10px;
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.gis-detail-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 32px 0;
+  justify-content: center;
+}
+
+.gis-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.gis-detail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.gis-detail-title {
+  font-size: 12px;
+  color: #185FA5;
+  font-weight: 500;
+}
+
+.gis-close-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 0.5px solid #e5e7eb;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gis-close-btn:hover { background: #f3f4f6; }
+
+/* Detail info rows */
+.gis-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gis-detail-row {
+  display: grid;
+  grid-template-columns: 140px 12px 1fr;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.gis-detail-row-label { color: #6b7280; }
+.gis-detail-row-sep   { color: #9ca3af; }
+.gis-detail-row-val   { color: #111827; font-weight: 500; }
+
+/* Kasus total */
+.gis-kasus-total-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.gis-kasus-total {
+  background: #E6F1FB;
+  border-radius: 10px;
+  padding: 10px 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.gis-kasus-total-num {
+  font-size: 28px;
+  font-weight: 700;
+  color: #185FA5;
+  line-height: 1;
+}
+
+.gis-kasus-total-label {
+  font-size: 11px;
+  color: #185FA5;
+  margin-top: 2px;
+}
+
+.gis-kasus-penyakit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.gis-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  background: #f9fafb;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.gis-chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* CFR & Prevalence */
+.gis-metrics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.gis-metric-card {
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.gis-metric-cfr  { background: #FEF3C7; }
+.gis-metric-prev { background: #EAF3DE; }
+
+.gis-metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+.gis-metric-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.gis-metric-val span {
+  font-size: 11px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+/* ── Trend chart card ───────────────────────────────────────────────────── */
+
+.gis-chart-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 0.5px solid #e5e7eb;
+  padding: 14px;
+}
+
+.gis-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gis-chart-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.gis-chart-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.gis-chart-loading {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ── Small select ───────────────────────────────────────────────────────── */
+
+.gis-select-sm {
+  padding: 5px 10px;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.gis-select-sm:focus { outline: none; border-color: #185FA5; }
+
+/* ── Spinner ────────────────────────────────────────────────────────────── */
+
+.gis-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #e5e7eb;
+  border-top-color: #185FA5;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Reuse dk-* classes from Datakasus.css ──────────────────────────────── */
+/* (dk-table, dk-badge, dk-pagination, dll sudah ada di Datakasus.css)       */

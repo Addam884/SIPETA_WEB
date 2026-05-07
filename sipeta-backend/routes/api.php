@@ -6,6 +6,7 @@ use App\Http\Controllers\KasusController;
 use App\Http\Controllers\PenyakitController;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\FaskesController;
+use App\Http\Controllers\GisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 
@@ -45,3 +46,20 @@ Route::apiResource('penyakit', PenyakitController::class);
 Route::apiResource('wilayah', WilayahController::class);
 Route::apiResource('kasus', KasusController::class);
 Route::apiResource('faskes', FaskesController::class);
+
+
+// GIS routes
+Route::prefix('gis')->group(function () {
+    // Peta
+    Route::get('geojson',                  [GisController::class, 'geojson']);
+    Route::get('faskes',                   [GisController::class, 'faskes']);
+    Route::get('faskes/{id}/detail',       [GisController::class, 'faskesDetail']);
+ 
+    // Clustering K-Means
+    Route::post('clustering/run',          [GisController::class, 'runClustering']);
+    Route::get ('clustering/result',       [GisController::class, 'clusteringResult']);
+ 
+    // Chart & tabel
+    Route::get('trend',                    [GisController::class, 'trend']);
+    Route::get('epidemiologi',             [GisController::class, 'epidemiologi']);
+});

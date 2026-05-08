@@ -1,38 +1,34 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Tambahkan useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
-import api from "../services/api.ts";
+import api from "../services/api";
+import PasswordInput from "../components/PasswordInput";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
 
-  const navigate = useNavigate(); // Inisialisasi useNavigate
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/login", {
-        email,
-        password,
-      });
+      localStorage.removeItem("token");
+
+      const res = await api.post("/login", { email, password });
 
       const { token, user } = res.data;
 
-      // 🔥 simpan token & role
+      // simpan token
       localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
 
-      // 🔥 routing berdasarkan role
-      if (user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (user.role === "superadmin") {
-        navigate("/superadmin/dashboard");
-      } else {
-        navigate("/user/dashboard");
-      }
+      setUser(user);
+
+      navigate(`/${user.role}/dashboard`);
 
     } catch (err: any) {
       alert(err.response?.data?.message || "Login gagal");
@@ -133,12 +129,10 @@ function Login() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
 
-                <input
-                  type="password"
-                  placeholder="Masukkan password..."
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  placeholder="Masukkan password..."
                 />
 
               </div>

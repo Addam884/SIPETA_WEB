@@ -8,7 +8,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // REGISTER (default user)
+    // REGISTER
     public function register(Request $request)
     {
         $request->validate([
@@ -33,7 +33,12 @@ class AuthController extends Controller
     // LOGIN
     public function login(Request $request)
     {
-        $user = User::with('role')->where('email', $request->email)->first();
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
@@ -43,13 +48,17 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // 🔥 RESPONSE KONSISTEN
         return response()->json([
             'message' => 'Login berhasil',
             'token' => $token,
             'user' => [
+                'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role->name
+                'phone' => $user->phone,
+                'avatar' => $user->avatar,
+                'role' => $user->role->name // ✅ INI
             ]
         ]);
     }

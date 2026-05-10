@@ -38,7 +38,7 @@ function Home() {
       <Navbar scrollToSection={scrollToSection} />
 
       <section id="beranda">
-        <Hero />
+        <Hero scrollToSection={scrollToSection} />
       </section>
 
       <section id="statistik">

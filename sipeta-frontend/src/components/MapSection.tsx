@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import { Fragment } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -31,117 +32,116 @@ function MapSection() {
 
       <div className="map-layout">
 
-  {/* MAP */}
-  <div className="map-wrapper">
-    <MapContainer
-      center={jemberPosition}
-      zoom={11}
-      style={{ height: "100%", width: "100%" }}
-    >
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+        {/* MAP */}
+        <div className="map-wrapper">
+          <MapContainer
+            center={jemberPosition}
+            zoom={11}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
 
-      {riskZones.map((zone, i) => (
-        <>
-          <Circle
-            key={`circle-${i}`}
-            center={zone.position}
-            radius={zone.radius}
-            pathOptions={{
-              color: zone.color,
-              fillColor: zone.color,
-              fillOpacity: 0.2,
-              weight: 2
-            }}
-          />
+            {riskZones.map((zone, i) => (
+              <Fragment key={i}>
+                <Circle
+                  center={zone.position}
+                  radius={zone.radius}
+                  pathOptions={{
+                    color: zone.color,
+                    fillColor: zone.color,
+                    fillOpacity: 0.2,
+                    weight: 2
+                  }}
+                />
 
-          <Marker key={`marker-${i}`} position={zone.position}>
-            <Popup>
-              <strong>{zone.label}</strong><br />
-              Risiko: {zone.risk}<br />
-              Kasus: {zone.cases}
-            </Popup>
-          </Marker>
-        </>
-      ))}
+                <Marker position={zone.position}>
+                  <Popup>
+                    <strong>{zone.label}</strong><br />
+                    Risiko: {zone.risk}<br />
+                    Kasus: {zone.cases}
+                  </Popup>
+                </Marker>
+              </Fragment>
+            ))}
 
-    </MapContainer>
-  </div>
-
-
-  {/* SIDEBAR */}
-  <div className="map-sidebar">
-
-    <div className="sidebar-card">
-      <h3 className="sidebar-title">Legenda Risiko</h3>
-
-      <div className="legend-list">
-
-        <div className="legend-item">
-          <div className="legend-dot" style={{ background: "#ef4444" }}></div>
-          <div>
-            <div className="legend-label">Zona Risiko Tinggi</div>
-            <div className="legend-sub">≥ 200 kasus aktif</div>
-          </div>
+          </MapContainer>
         </div>
 
-        <div className="legend-item">
-          <div className="legend-dot" style={{ background: "#f59e0b" }}></div>
-          <div>
-            <div className="legend-label">Zona Risiko Sedang</div>
-            <div className="legend-sub">100–199 kasus aktif</div>
-          </div>
-        </div>
 
-        <div className="legend-item">
-          <div className="legend-dot" style={{ background: "#22c55e" }}></div>
-          <div>
-            <div className="legend-label">Zona Risiko Rendah</div>
-            <div className="legend-sub">{'< 100 kasus aktif'}</div>
+        {/* SIDEBAR */}
+        <div className="map-sidebar">
+
+          <div className="sidebar-card">
+            <h3 className="sidebar-title">Legenda Risiko</h3>
+
+            <div className="legend-list">
+
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: "#ef4444" }}></div>
+                <div>
+                  <div className="legend-label">Zona Risiko Tinggi</div>
+                  <div className="legend-sub">≥ 200 kasus aktif</div>
+                </div>
+              </div>
+
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: "#f59e0b" }}></div>
+                <div>
+                  <div className="legend-label">Zona Risiko Sedang</div>
+                  <div className="legend-sub">100–199 kasus aktif</div>
+                </div>
+              </div>
+
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: "#22c55e" }}></div>
+                <div>
+                  <div className="legend-label">Zona Risiko Rendah</div>
+                  <div className="legend-sub">{'< 100 kasus aktif'}</div>
+                </div>
+              </div>
+
+            </div>
           </div>
+
+
+          <div className="sidebar-card">
+            <h3 className="sidebar-title">Zona Panas</h3>
+
+            {riskZones.map((z, i) => (
+              <div className="hotspot-item" key={i}>
+
+                <div
+                  className="hotspot-dot"
+                  style={{ background: z.color }}
+                ></div>
+
+                <div className="hotspot-info">
+                  <div className="hotspot-name">{z.label}</div>
+                  <div className="hotspot-cases">{z.cases} kasus</div>
+                </div>
+
+                <div
+                  className="hotspot-badge"
+                  style={{ color: z.color, borderColor: z.color }}
+                >
+                  {z.risk}
+                </div>
+
+              </div>
+            ))}
+
+          </div>
+
+          <button className="btn-fullmap">
+            Buka Peta Penuh
+          </button>
+
         </div>
 
       </div>
-    </div>
-
-
-    <div className="sidebar-card">
-      <h3 className="sidebar-title">Zona Panas</h3>
-
-      {riskZones.map((z, i) => (
-        <div className="hotspot-item" key={i}>
-
-          <div
-            className="hotspot-dot"
-            style={{ background: z.color }}
-          ></div>
-
-          <div className="hotspot-info">
-            <div className="hotspot-name">{z.label}</div>
-            <div className="hotspot-cases">{z.cases} kasus</div>
-          </div>
-
-          <div
-            className="hotspot-badge"
-            style={{ color: z.color, borderColor: z.color }}
-          >
-            {z.risk}
-          </div>
-
-        </div>
-      ))}
-
-    </div>
-
-    <button className="btn-fullmap">
-      Buka Peta Penuh
-    </button>
-
-  </div>
-
-</div>
     </section>
   );
 }

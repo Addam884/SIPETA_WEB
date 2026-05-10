@@ -1,7 +1,11 @@
 import Lottie from "lottie-react";
 import virusAnimation from "../assets/virus.json";
 
-function Hero() {
+type HeroProps = {
+  scrollToSection: (id: string) => void;
+};
+
+function Hero({ scrollToSection }: HeroProps) {
 
   return (
     <section className="hero">
@@ -26,7 +30,10 @@ function Hero() {
           </p>
 
           <div className="hero-actions">
-            <button className="btn-primary">
+            <button
+              className="btn-primary"
+              onClick={() => scrollToSection("peta")}
+            >
               Lihat Peta Penyakit
             </button>
 

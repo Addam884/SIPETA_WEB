@@ -12,12 +12,30 @@
   align-items: start;
 }
 
+/* Memperbaiki container Map yang sebelumnya inline styles */
+.leaflet-map-container {
+  height: 100%;
+  width: 100%;
+}
+
 .map-wrapper {
   height: 480px;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
+  position: relative;
+}
+
+.map-loading {
+  text-align: center;
+  padding: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .map-sidebar {
@@ -43,6 +61,7 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* Legend Styles */
 .legend-list {
   display: flex;
   flex-direction: column;
@@ -62,6 +81,11 @@
   flex-shrink: 0;
 }
 
+/* Menghilangkan inline style background legend */
+.legend-high { background: #ef4444; }
+.legend-medium { background: #f59e0b; }
+.legend-low { background: #22c55e; }
+
 .legend-label {
   font-size: 13px;
   font-weight: 600;
@@ -72,6 +96,12 @@
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+/* Hotspot Data Empty State */
+.empty-data-text {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .hotspot-item {
@@ -117,95 +147,89 @@
   background: transparent;
 }
 
-.btn-fullmap {
+/* ===== FASKES CUSTOM MARKER ===== */
+.custom-faskes-wrapper {
+  background: none;
+  border: none;
+}
+
+.faskes-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #185FA5;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--primary);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: background 0.3s ease;
 }
 
-.btn-fullmap:hover {
-  background: var(--primary-light);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(10, 61, 107, 0.25);
+.faskes-marker svg {
+  stroke: #185FA5;
+  transition: stroke 0.3s ease;
 }
+
+/* State aktif untuk marker */
+.faskes-marker.active {
+  background: #185FA5;
+}
+
+.faskes-marker.active svg {
+  stroke: #fff;
+}
+
 
 /* ===== RESPONSIVE MAP SECTION ===== */
 
 /* Tablet */
-@media (max-width:1024px){
-
-.map-section{
-  padding:70px 40px 90px;
+@media (max-width: 1024px) {
+  .map-section {
+    padding: 70px 40px 90px;
+  }
+  .map-layout {
+    grid-template-columns: 1fr 260px;
+    gap: 20px;
+  }
+  .map-wrapper {
+    height: 420px;
+  }
 }
-
-.map-layout{
-  grid-template-columns:1fr 260px;
-  gap:20px;
-}
-
-.map-wrapper{
-  height:420px;
-}
-
-}
-
 
 /* Mobile */
-@media (max-width:768px){
-
-.map-section{
-  padding:60px 20px 80px;
+@media (max-width: 768px) {
+  .map-section {
+    padding: 60px 20px 80px;
+  }
+  .map-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .map-wrapper {
+    height: 360px;
+  }
+  .map-sidebar {
+    flex-direction: column;
+  }
+  .sidebar-card {
+    padding: 18px;
+  }
 }
-
-.map-layout{
-  grid-template-columns:1fr;
-  gap:24px;
-}
-
-.map-wrapper{
-  height:360px;
-}
-
-.map-sidebar{
-  flex-direction:column;
-}
-
-.sidebar-card{
-  padding:18px;
-}
-
-}
-
 
 /* HP kecil */
-@media (max-width:480px){
-
-.map-wrapper{
-  height:300px;
-}
-
-.sidebar-title{
-  font-size:13px;
-}
-
-.legend-label{
-  font-size:12px;
-}
-
-.hotspot-name{
-  font-size:12px;
-}
-
+@media (max-width: 480px) {
+  .map-wrapper {
+    height: 300px;
+  }
+  .sidebar-title {
+    font-size: 13px;
+  }
+  .legend-label {
+    font-size: 12px;
+  }
+  .hotspot-name {
+    font-size: 12px;
+  }
 }

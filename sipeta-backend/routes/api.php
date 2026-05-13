@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('kasus/statistik', [KasusController::class, 'statistik']);
+Route::get('kasus/stats-summary', [KasusController::class, 'statsSummary']);
 
 // Handle
 Route::get('faskes', [FaskesController::class, 'index']);

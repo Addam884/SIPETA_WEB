@@ -75,7 +75,7 @@ function MapSection() {
       api.get("/gis/faskes")
     ])
       .then(([geoRes, faskesRes]) => {
-        setGeojson(geoRes.data);
+        setGeojson(geoRes.data.geojson);
         setFaskesGeo(faskesRes.data);
       })
       .catch((err) => {

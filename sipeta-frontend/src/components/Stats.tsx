@@ -24,7 +24,7 @@ function Stats() {
           params: { periode }
         });
 
-        const features = geoRes.data.features;
+        const features = geoRes.data?.geojson?.features ?? [];
 
         const zonaTinggi = features.filter(
           (f: any) => f.properties.cluster_id === 2

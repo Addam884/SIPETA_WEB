@@ -52,7 +52,7 @@ class SettingsController extends Controller
             $filename = time() . '.jpg';
             $path = 'avatars/' . $filename;
 
-            Storage::disk('public')->put($path, $image);
+            Storage::disk('public')->put($path, (string) $image);
 
             $user->avatar = $path;
         }

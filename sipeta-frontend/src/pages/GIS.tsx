@@ -12,7 +12,6 @@ import {
 import {
     useGeoJson, useFaskesGeoJson, useFaskesDetail,
     useTrend, useEpidemiologi, runClustering,
-    type ClusterRunResult,
 } from '../services/Usegis';
 import api from '../services/api';
 import '../styles/Gis.css';
@@ -165,7 +164,6 @@ const FaskesDetailPanel: React.FC<{
         </div>
     );
 
-    // FIX: jika detail null (API error), tampilkan pesan error daripada crash
     if (!detail) return (
         <div className="gis-detail-panel gis-detail-empty">
             <div className="gis-detail-hint">
@@ -175,7 +173,6 @@ const FaskesDetailPanel: React.FC<{
         </div>
     );
 
-    // FIX: safe guard semua nilai yang mungkin null/undefined
     const populasi = detail.populasi ?? 0;
     const ir = detail.ir ?? 0;
     const cfr = detail.cfr ?? 0;
@@ -184,7 +181,6 @@ const FaskesDetailPanel: React.FC<{
 
     return (
         <div className="gis-detail-panel">
-            {/* Header */}
             <div className="gis-detail-header">
                 <div>
                     <div className="gis-detail-label">Detail Fasilitas Kesehatan :</div>
@@ -193,7 +189,6 @@ const FaskesDetailPanel: React.FC<{
                 <button className="gis-close-btn" onClick={onClose}>×</button>
             </div>
 
-            {/* Info rows */}
             <div className="gis-detail-info">
                 {[
                     { label: 'Nama Fasilitas Kesehatan', value: detail.nama_faskes ?? '-' },
@@ -211,7 +206,6 @@ const FaskesDetailPanel: React.FC<{
                 ))}
             </div>
 
-            {/* Total kasus */}
             <div className="gis-kasus-total-wrap">
                 <div className="gis-kasus-total">
                     <div className="gis-kasus-total-num">{detail.total_kasus ?? 0}</div>
@@ -227,7 +221,6 @@ const FaskesDetailPanel: React.FC<{
                 </div>
             </div>
 
-            {/* CFR & Prevalence */}
             <div className="gis-metrics-row">
                 <div className="gis-metric-card gis-metric-cfr">
                     <div className="gis-metric-label">Critical Fatality Rate (CFR)</div>
@@ -239,7 +232,6 @@ const FaskesDetailPanel: React.FC<{
                 </div>
             </div>
 
-            {/* Trend Chart */}
             <TrendChart penyakitId={penyakitId} wilayahId={wilayahId} tahun={tahun}
                 onPenyakitChange={onPenyakitChange} penyakitList={penyakitList} />
         </div>
@@ -364,26 +356,31 @@ const MapLegend: React.FC = () => (
     </div>
 );
 
-// ─── Main GIS Page ────────────────────────────────────────────────────────────
+// ─── Main GIS Page (FIXED) ────────────────────────────────────────────────────
 
 const GIS: React.FC = () => {
     const today = new Date();
     const [periode, setPeriode] = useState(today.toISOString().slice(0, 7));
-    const [tahun, setTahun] = useState(today.getFullYear());
-    const [filterPenyakit, setFilterPenyakit] = useState<number | ''>('');
+    const [tahun,] = useState(today.getFullYear());
+    
+    // PERUBAHAN PENTING: filterPenyakit dimulai dengan undefined (tidak ada filter)
+    const [filterPenyakit, setFilterPenyakit] = useState<number | undefined>(undefined);
     const [selectedFaskesId, setSelectedFaskesId] = useState<number | null>(null);
     const [selectedWilayahId, setSelectedWilayahId] = useState<number | null>(null);
     const [penyakitList, setPenyakitList] = useState<any[]>([]);
+    
+    // Flag untuk mengetahui apakah user sudah melakukan interaksi
+    const [isUserFilterApplied, setIsUserFilterApplied] = useState(false);
 
     // FIX: status auto-clustering
     const [clusteringStatus, setClusteringStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
-    // Track penyakit+periode terakhir yang sudah di-cluster agar tidak double-run
     const lastClusteredRef = useRef<string>('');
 
+    // PERUBAHAN: useGeoJson dengan filterPenyakit yang bisa undefined
     const { geojson, loading: geoLoading, refetch: refetchGeo } = useGeoJson(filterPenyakit, periode);
     const { faskesGeo } = useFaskesGeoJson();
 
-    // ─── Load penyakit list & set default ke penyakit terbanyak ───────────────
+    // ─── Load penyakit list saja, TIDAK otomatis memilih ──────────────────────
     useEffect(() => {
         api.get('/penyakit').then(r => {
             const list = r.data as any[];
@@ -391,70 +388,36 @@ const GIS: React.FC = () => {
         }).catch(() => { });
     }, []);
 
-    // Setelah penyakitList dan periode tersedia, cari penyakit dengan kasus terbanyak
-    // untuk dijadikan default awal (hanya sekali saat load pertama)
-    const defaultSet = useRef(false);
+    // ─── PERUBAHAN: Hanya jalankan auto-clustering ketika user memilih filter ──
     useEffect(() => {
-        if (defaultSet.current) return;
-        if (penyakitList.length === 0) return;
-
-        // Ambil summary kasus per penyakit untuk periode ini
-        api.get('/gis/clustering/result', { params: { periode } })
-            .then(res => {
-                const results = res.data as any[];
-                if (results.length === 0) {
-                    // Belum ada cluster → pakai penyakit pertama di list
-                    if (penyakitList[0]) {
-                        setFilterPenyakit(penyakitList[0].id);
-                    }
-                } else {
-                    // Cari penyakit dengan total kasus terbanyak dari hasil clustering
-                    const totalByPenyakit: Record<string, number> = {};
-                    results.forEach(r => {
-                        const key = String(r.penyakit ?? r.penyakit_id ?? '');
-                        totalByPenyakit[key] = (totalByPenyakit[key] ?? 0) + (r.jumlah_kasus ?? 0);
-                    });
-                    // Cocokan ke penyakitList
-                    let maxId: number | '' = '';
-                    let maxTotal = -1;
-                    penyakitList.forEach(p => {
-                        const t = totalByPenyakit[p.nama_penyakit] ?? 0;
-                        if (t > maxTotal) { maxTotal = t; maxId = p.id; }
-                    });
-                    if (maxId !== '') setFilterPenyakit(maxId);
-                    else if (penyakitList[0]) setFilterPenyakit(penyakitList[0].id);
-                }
-                defaultSet.current = true;
-            })
-            .catch(() => {
-                // Jika gagal, fallback ke penyakit pertama
-                if (penyakitList[0]) setFilterPenyakit(penyakitList[0].id);
-                defaultSet.current = true;
-            });
-    }, [penyakitList, periode]);
-
-    // ─── AUTO CLUSTERING: jalankan otomatis tiap kali penyakit atau periode berubah ─
-    useEffect(() => {
+        // Hanya jalankan clustering jika user sudah memilih penyakit (bukan undefined)
+        // dan bukan default otomatis
+        if (!isUserFilterApplied) return;
         if (!filterPenyakit) return;
 
         const key = `${filterPenyakit}-${periode}`;
-        if (lastClusteredRef.current === key) return; // sudah dicluster, skip
+        if (lastClusteredRef.current === key) return;
 
         setClusteringStatus('running');
-        runClustering(+filterPenyakit, periode, 3)
+        runClustering(filterPenyakit, periode, 3)
             .then(() => {
                 lastClusteredRef.current = key;
                 setClusteringStatus('done');
                 refetchGeo();
             })
             .catch(() => {
-                // Jika gagal (misal tidak ada data), tetap refetch geojson
-                // supaya peta tetap tampil dengan data yang ada
                 lastClusteredRef.current = key;
                 setClusteringStatus('error');
                 refetchGeo();
             });
-    }, [filterPenyakit, periode]);
+    }, [filterPenyakit, periode, isUserFilterApplied, refetchGeo]);
+
+    // ─── Handler untuk perubahan filter penyakit ──────────────────────────────
+    const handlePenyakitChange = useCallback((penyakitId: number | undefined) => {
+        setFilterPenyakit(penyakitId);
+        setIsUserFilterApplied(true); // Tandai bahwa user yang memilih
+        setClusteringStatus('idle');
+    }, []);
 
     // ─── Style fungsi untuk GeoJSON wilayah ───────────────────────────────────
     const styleFeature = useCallback((feature?: any) => {
@@ -469,32 +432,36 @@ const GIS: React.FC = () => {
         };
     }, [selectedWilayahId]);
 
-    // ─── FIX: tooltip sekarang pakai nama penyakit dari filterPenyakit + jumlah penduduk ─
-    // Kita ambil nama penyakit dari penyakitList berdasarkan filterPenyakit
-    const selectedPenyakitNama = penyakitList.find(p => p.id === filterPenyakit)?.nama_penyakit ?? 'Semua Penyakit';
+    // Tooltip text berdasarkan mode (default vs filter penyakit)
+    const getTooltipText = useCallback((properties: any) => {
+        const cId = properties.cluster_id;
+        const isDefaultMode = !isUserFilterApplied || !filterPenyakit;
+        const penyakitName = isDefaultMode 
+            ? 'Semua Penyakit' 
+            : (penyakitList.find(p => p.id === filterPenyakit)?.nama_penyakit ?? 'Penyakit');
+        
+        return `
+            <div style="font-size:12px;min-width:160px;line-height:1.6">
+                <strong style="font-size:13px">${properties.nama_wilayah}</strong><br/>
+                <span style="color:#6b7280">Penyakit:</span> <b>${penyakitName}</b><br/>
+                <span style="color:#6b7280">Jumlah Kasus:</span> <b>${properties.jumlah_kasus ?? 0}</b><br/>
+                <span style="color:#6b7280">Status Risiko:</span> <b style="color:${cId !== null && cId !== undefined ? CLUSTER_TEXT[cId] : '#6b7280'}">${properties.cluster_label ?? 'Belum diproses'}</b>
+            </div>
+        `;
+    }, [isUserFilterApplied, filterPenyakit, penyakitList]);
 
     // Event pada setiap polygon wilayah
     const onEachFeature = useCallback((feature: any, layer: any) => {
         const p = feature.properties;
-        const cId = p.cluster_id;
-
-        // FIX: gunakan selectedPenyakitNama untuk label penyakit
-        // dan tampilkan jumlah kasus (sebagai proxy jumlah penduduk terdampak)
-        layer.bindTooltip(`
-      <div style="font-size:12px;min-width:160px;line-height:1.6">
-        <strong style="font-size:13px">${p.nama_wilayah}</strong><br/>
-        <span style="color:#6b7280">Penyakit:</span> <b>${selectedPenyakitNama}</b><br/>
-        <span style="color:#6b7280">Jumlah Kasus:</span> <b>${p.jumlah_kasus ?? 0}</b><br/>
-        <span style="color:#6b7280">Status Risiko:</span> <b style="color:${cId !== null && cId !== undefined ? CLUSTER_TEXT[cId] : '#6b7280'}">${p.cluster_label ?? 'Belum diproses'}</b>
-      </div>
-    `, { sticky: true });
+        
+        layer.bindTooltip(getTooltipText(p), { sticky: true });
 
         layer.on({
             click: () => setSelectedWilayahId(p.id),
             mouseover: (e: any) => { e.target.setStyle({ weight: 2.5, color: '#185FA5', fillOpacity: 0.85 }); },
             mouseout: (e: any) => { e.target.setStyle(styleFeature(feature)); },
         });
-    }, [styleFeature, selectedPenyakitNama]);
+    }, [styleFeature, getTooltipText]);
 
     return (
         <div className="gis-page">
@@ -503,7 +470,8 @@ const GIS: React.FC = () => {
             <div className="gis-topbar">
                 <h2 className="gis-page-title">GIS</h2>
                 <div className="gis-topbar-right">
-                    {/* Indikator status auto-clustering */}
+                    {/* Indikator mode clustering */}
+                    
                     {clusteringStatus === 'running' && (
                         <span style={{ fontSize: 12, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div className="gis-spinner" style={{ width: 14, height: 14 }} />
@@ -524,23 +492,26 @@ const GIS: React.FC = () => {
                 </div>
             </div>
 
-            {/* ── Filter bar ────────────────────────────────────────────────────── */}
-            {/* FIX: hapus tombol "⚙ Clustering K-Means" karena clustering sudah otomatis */}
+            {/* ── Filter bar (PERUBAHAN: default option "Semua Penyakit") ───────── */}
             <div className="gis-filterbar">
-                <select className="dk-filter-select" value={filterPenyakit}
+                <select 
+                    className="dk-filter-select" 
+                    value={filterPenyakit ?? ''}
                     onChange={e => {
-                        setFilterPenyakit(e.target.value ? +e.target.value : '');
-                        setClusteringStatus('idle'); // reset supaya auto-clustering trigger ulang
-                    }}>
-                    <option value="">Penyakit: All</option>
+                        const value = e.target.value;
+                        handlePenyakitChange(value ? +value : undefined);
+                    }}
+                >
+                    <option value="">-- Semua Penyakit --</option>
                     {penyakitList.map(p => <option key={p.id} value={p.id}>{p.nama_penyakit}</option>)}
                 </select>
-                <input type="month" className="dk-filter-select" value={periode}
-                    onChange={e => {
-                        setPeriode(e.target.value);
-                        setClusteringStatus('idle'); // reset supaya auto-clustering trigger ulang
-                    }}
-                    style={{ width: 180 }} />
+                <input 
+                    type="month" 
+                    className="dk-filter-select" 
+                    value={periode}
+                    onChange={e => setPeriode(e.target.value)}
+                    style={{ width: 180 }} 
+                />
             </div>
 
             {/* ── Main Layout ───────────────────────────────────────────────────── */}
@@ -563,7 +534,6 @@ const GIS: React.FC = () => {
                             style={{ width: '100%', height: '100%' }}
                             zoomControl={true}
                         >
-                            {/* Tile layers */}
                             <LayersControl position="topright">
                                 <LayersControl.BaseLayer checked name="OpenStreetMap">
                                     <TileLayer
@@ -584,8 +554,7 @@ const GIS: React.FC = () => {
                                 <>
                                     <MapFit geojson={geojson} />
                                     <GeoJSON
-                                        // FIX: key yang lebih unik agar GeoJSON re-render tiap cluster baru
-                                        key={`${filterPenyakit}-${periode}-${geojson.features.length}`}
+                                        key={`${filterPenyakit ?? 'default'}-${periode}`}
                                         data={geojson as any}
                                         style={styleFeature}
                                         onEachFeature={onEachFeature}
@@ -596,7 +565,6 @@ const GIS: React.FC = () => {
                             {/* Faskes markers */}
                             {Array.isArray(faskesGeo?.features) && faskesGeo!.features.map(f => {
                                 const coords = (f.geometry as any).coordinates;
-                                // FIX: guard jika koordinat tidak valid
                                 if (!coords || coords.length < 2) return null;
                                 const p = f.properties;
                                 const isActive = selectedFaskesId === p.id;
@@ -614,7 +582,6 @@ const GIS: React.FC = () => {
                                     >
                                         <Popup>
                                             <div style={{ fontSize: 13, minWidth: 140 }}>
-                                                {/* FIX: tampilkan nama_faskes, bukan nama_wilayah dua kali */}
                                                 <strong>{p.nama_faskes}</strong><br />
                                                 <span style={{ color: '#6b7280' }}>{p.nama_wilayah}</span>
                                             </div>
@@ -623,7 +590,6 @@ const GIS: React.FC = () => {
                                 );
                             })}
 
-                            {/* Legenda */}
                             <MapLegend />
                         </MapContainer>
                     </div>
@@ -631,7 +597,7 @@ const GIS: React.FC = () => {
                     {/* Epidemiologi Table */}
                     <EpiTable
                         wilayahId={selectedWilayahId}
-                        penyakitId={filterPenyakit}
+                        penyakitId={filterPenyakit ?? ''}
                         faskesId={selectedFaskesId}
                     />
                 </div>
@@ -642,13 +608,12 @@ const GIS: React.FC = () => {
                         faskesId={selectedFaskesId}
                         periode={periode}
                         onClose={() => setSelectedFaskesId(null)}
-                        penyakitId={filterPenyakit}
+                        penyakitId={filterPenyakit ?? ''}
                         wilayahId={selectedWilayahId}
                         tahun={tahun}
                         penyakitList={penyakitList}
                         onPenyakitChange={(id) => {
-                            setFilterPenyakit(id);
-                            setClusteringStatus('idle');
+                            handlePenyakitChange(id || undefined);
                         }}
                     />
                 </div>

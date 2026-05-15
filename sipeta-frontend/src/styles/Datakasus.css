@@ -1048,3 +1048,10 @@
   font-size: 13px;
 }
 
+.dk-upload-area-active {
+  border-color: #185FA5 !important;
+  background-color: #E6F1FB !important;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+

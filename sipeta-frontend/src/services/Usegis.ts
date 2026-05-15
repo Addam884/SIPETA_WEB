@@ -86,9 +86,51 @@ export interface ClusterRunResult {
 
 // ─── Hook: useGeoJson ─────────────────────────────────────────────────────────
 
+export const useDefaultGeoJson = (periode?: string) => {
+  const [geojson, setGeojson] = useState<GeoJsonFeatureCollection | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [clusteringInfo, setClusteringInfo] = useState<{
+    k: number;
+    davies_bouldin: number;
+    summary: { Rendah: number; Sedang: number; Tinggi: number };
+  } | null>(null);
+
+  const fetch = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Endpoint baru untuk clustering berdasarkan total kasus semua penyakit
+      const res = await api.get('/gis/geojson/default-clustering', {
+        params: {
+          periode: periode ?? new Date().toISOString().slice(0, 7),
+        },
+      });
+      setGeojson(res.data.geojson);
+      setClusteringInfo({
+        k: res.data.k,
+        davies_bouldin: res.data.davies_bouldin,
+        summary: res.data.summary,
+      });
+    } catch (error) {
+      console.error('Error fetching default clustering:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [periode]);
+
+  useEffect(() => { fetch(); }, [fetch]);
+
+  return { geojson, loading, clusteringInfo, refetch: fetch };
+};
+
+// ─── Modified: Hook untuk GeoJson berdasarkan penyakit (opsional) ───
 export const useGeoJson = (penyakitId?: number | '', periode?: string) => {
   const [geojson, setGeojson] = useState<GeoJsonFeatureCollection | null>(null);
   const [loading, setLoading] = useState(false);
+  const [clusteringInfo, setClusteringInfo] = useState<{
+    k: number;
+    davies_bouldin: number;
+    summary: { Rendah: number; Sedang: number; Tinggi: number };
+  } | null>(null);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -99,14 +141,22 @@ export const useGeoJson = (penyakitId?: number | '', periode?: string) => {
           periode: periode ?? new Date().toISOString().slice(0, 7),
         },
       });
-      setGeojson(res.data);
-    } catch { /* silent */ }
-    finally { setLoading(false); }
+      setGeojson(res.data.geojson || res.data);
+      if (res.data.clustering_info) {
+        setClusteringInfo(res.data.clustering_info);
+      }
+    } catch (error) {
+      console.error('Error fetching geoJSON:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [penyakitId, periode]);
 
   useEffect(() => { fetch(); }, [fetch]);
-  return { geojson, loading, refetch: fetch };
+
+  return { geojson, loading, clusteringInfo, refetch: fetch };
 };
+
 
 // ─── Hook: useFaskesGeoJson ───────────────────────────────────────────────────
 
@@ -149,7 +199,7 @@ export const useFaskesDetail = (faskesId: number | null, periode?: string) => {
       })
       .finally(() => setLoading(false));
   }, [faskesId, periode]);
-  
+
   return { detail, loading, error };
 };
 

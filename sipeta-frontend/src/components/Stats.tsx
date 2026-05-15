@@ -10,9 +10,25 @@ function Stats() {
   ]);
 
   useEffect(() => {
-    api.get("/kasus/stats-summary")
-      .then((res) => {
+    const fetchStats = async () => {
+      try {
+        // 🔹 Ambil summary utama
+        const res = await api.get("/kasus/stats-summary");
         const data = res.data;
+
+        // 🔹 Ambil hasil clustering (periode sekarang)
+        const now = new Date();
+        const periode = now.toISOString().slice(0, 7); // format YYYY-MM
+
+        const geoRes = await api.get("/gis/geojson", {
+          params: { periode }
+        });
+
+        const features = geoRes.data.features;
+
+        const zonaTinggi = features.filter(
+          (f: any) => f.properties.cluster_id === 2
+        ).length;
 
         setStats([
           {
@@ -34,16 +50,18 @@ function Stats() {
             trend: `${data.jumlah_penyakit_dominan ?? 0} kasus`,
           },
           {
-            value: "-", // nanti bisa kamu isi dari clustering
+            value: zonaTinggi, // 🔥 HASIL UTAMA
             label: "Zona Risiko Tinggi",
             icon: "🔴",
-            trend: "Belum dihitung",
+            trend: `${zonaTinggi} kecamatan`,
           },
         ]);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Gagal ambil stats:", err);
-      });
+      }
+    };
+
+    fetchStats();
   }, []);
 
   return (

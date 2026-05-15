@@ -12,7 +12,6 @@
   align-items: start;
 }
 
-/* Memperbaiki container Map yang sebelumnya inline styles */
 .leaflet-map-container {
   height: 100%;
   width: 100%;
@@ -27,17 +26,64 @@
   position: relative;
 }
 
-.map-loading {
-  text-align: center;
-  padding: 20px;
+/* 🔥 MODERN GLASSMORPHISM LOADING */
+.map-loading-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
 }
 
+.map-spinner {
+  animation: rotate 2s linear infinite;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+}
+
+.map-spinner .path {
+  stroke: #185FA5;
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+.map-loading-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  letter-spacing: 0.3px;
+}
+
+@keyframes rotate {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* ===== SIDEBAR ===== */
 .map-sidebar {
   display: flex;
   flex-direction: column;
@@ -81,7 +127,6 @@
   flex-shrink: 0;
 }
 
-/* Menghilangkan inline style background legend */
 .legend-high { background: #ef4444; }
 .legend-medium { background: #f59e0b; }
 .legend-low { background: #22c55e; }
@@ -98,12 +143,46 @@
   margin-top: 2px;
 }
 
-/* Hotspot Data Empty State */
+/* Hotspot Data Empty State & List Wrapper */
 .empty-data-text {
   font-size: 12px;
   color: var(--text-muted);
 }
 
+.hotspot-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🔥 Wrapper scroll untuk area hotspot */
+.hotspot-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 160px; /* Diatur agar sejajar batas bawah peta */
+  overflow-y: auto;
+  padding-right: 8px; /* Memberi ruang untuk scrollbar */
+}
+
+/* 🔥 Custom Scrollbar CSS */
+.hotspot-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hotspot-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.hotspot-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+.hotspot-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hotspot Item */
 .hotspot-item {
   display: flex;
   align-items: center;
@@ -145,6 +224,7 @@
   border-radius: 100px;
   border: 1px solid;
   background: transparent;
+  white-space: nowrap; /* Mencegah teks badge turun ke bawah */
 }
 
 /* ===== FASKES CUSTOM MARKER ===== */
@@ -164,7 +244,7 @@
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0,0,0,.25);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .faskes-marker svg {
@@ -183,53 +263,25 @@
 
 
 /* ===== RESPONSIVE MAP SECTION ===== */
-
-/* Tablet */
 @media (max-width: 1024px) {
-  .map-section {
-    padding: 70px 40px 90px;
-  }
-  .map-layout {
-    grid-template-columns: 1fr 260px;
-    gap: 20px;
-  }
-  .map-wrapper {
-    height: 420px;
-  }
+  .map-section { padding: 70px 40px 90px; }
+  .map-layout { grid-template-columns: 1fr 260px; gap: 20px; }
+  .map-wrapper { height: 420px; }
+  .hotspot-list { max-height: 200px; } /* Menyesuaikan agar card tidak lebih panjang dari peta */
 }
 
-/* Mobile */
 @media (max-width: 768px) {
-  .map-section {
-    padding: 60px 20px 80px;
-  }
-  .map-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .map-wrapper {
-    height: 360px;
-  }
-  .map-sidebar {
-    flex-direction: column;
-  }
-  .sidebar-card {
-    padding: 18px;
-  }
+  .map-section { padding: 60px 20px 80px; }
+  .map-layout { grid-template-columns: 1fr; gap: 24px; }
+  .map-wrapper { height: 360px; }
+  .map-sidebar { flex-direction: column; }
+  .sidebar-card { padding: 18px; }
+  .hotspot-list { max-height: 250px; } /* Di mobile list bisa sedikit lebih panjang karena letaknya di bawah peta */
 }
 
-/* HP kecil */
 @media (max-width: 480px) {
-  .map-wrapper {
-    height: 300px;
-  }
-  .sidebar-title {
-    font-size: 13px;
-  }
-  .legend-label {
-    font-size: 12px;
-  }
-  .hotspot-name {
-    font-size: 12px;
-  }
+  .map-wrapper { height: 300px; }
+  .sidebar-title { font-size: 13px; }
+  .legend-label { font-size: 12px; }
+  .hotspot-name { font-size: 12px; }
 }

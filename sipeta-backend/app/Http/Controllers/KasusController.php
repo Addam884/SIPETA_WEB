@@ -6,6 +6,7 @@ use App\Models\Kasus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Wilayah;
 
 class KasusController extends Controller
 {
@@ -325,5 +326,31 @@ class KasusController extends Controller
             'faskes_terbanyak' => $faskesTerbanyak,
             'kasus_by_penyakit' => $kasusByPenyakit,
         ]);
+    }
+
+    public function statsSummary()
+    {
+        try {
+            $totalKasus = Kasus::count();
+            $totalWilayah = Wilayah::count();
+
+            $penyakitDominan = DB::table('kasus')
+                ->join('penyakit', 'kasus.penyakit_id', '=', 'penyakit.id')
+                ->select('penyakit.nama_penyakit', DB::raw('COUNT(*) as total'))
+                ->groupBy('penyakit.nama_penyakit')
+                ->orderByDesc('total')
+                ->first();
+
+            return response()->json([
+                'total_kasus' => $totalKasus,
+                'total_wilayah' => $totalWilayah,
+                'penyakit_dominan' => $penyakitDominan->nama_penyakit ?? null,
+                'jumlah_penyakit_dominan' => $penyakitDominan->total ?? 0,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

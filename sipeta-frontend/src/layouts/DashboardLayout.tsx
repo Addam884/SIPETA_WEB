@@ -15,7 +15,7 @@ type DashboardLayoutProps = {
   role: Role;
 };
 
-type MenuKey = "dashboard" | "gis" | "datakasus" | "datamaster" | "settings";
+type MenuKey = "dashboard" | "gis" | "datakasus" | "datamaster" | "settings" | "riwayat";
 
 type MenuItem = {
   key: MenuKey;
@@ -26,7 +26,7 @@ type MenuItem = {
 const roleMenus: Record<Role, MenuKey[]> = {
   user: ["dashboard", "gis", "settings"],
   admin: ["dashboard", "gis", "datakasus", "settings"],
-  superadmin: ["dashboard", "gis", "datakasus", "datamaster", "settings"],
+  superadmin: ["dashboard", "gis", "datakasus", "datamaster", "riwayat", "settings"],
 };
 
 const menuItems: MenuItem[] = [
@@ -73,6 +73,35 @@ const menuItems: MenuItem[] = [
     ),
   },
   {
+    key: "riwayat",
+    label: "Riwayat",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+      d="M12 8v5l3 2"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3 12a9 9 0 1 0 3-6.7"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3 3v5h5"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+      </svg>
+    ),
+  },
+  {
     key: "settings",
     label: "Settings",
     icon: (
@@ -85,12 +114,14 @@ const menuItems: MenuItem[] = [
 ];
 
 
+
 const pageDescriptions: Record<MenuKey, string> = {
   dashboard: "Ringkasan data surveilans penyakit menular.",
   gis: "Peta interaktif GIS.",
   settings: "Konfigurasi akun kalian disini.",
   datakasus: "Manajemen Data Kasus",
   datamaster: "Manajemen Data Master",
+  riwayat: "Riwayat Aktivitas",
 };
 
 export default function DashboardLayout({ role }: DashboardLayoutProps) {
@@ -115,6 +146,7 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
     if (pathname.includes("/datakasus")) return "datakasus";
     if (pathname.includes("/datamaster")) return "datamaster";
     if (pathname.includes("/gis")) return "gis";
+    if (pathname.includes("/riwayat")) return "riwayat";
     return "dashboard";
   };
 

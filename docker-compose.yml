@@ -1,0 +1,90 @@
+services:
+
+  frontend:
+    build:
+      context: ./sipeta-frontend
+    image: sipeta-frontend
+    container_name: sipeta-frontend
+    ports:
+      - "5173:80"
+    networks:
+      - sipeta-network
+
+  backend:
+    build:
+      context: ./sipeta-backend
+    image: sipeta-backend
+    container_name: sipeta-backend
+    ports:
+      - "8000:8000"
+    networks:
+      - sipeta-network
+
+  db:
+    image: postgres:16
+    container_name: sipeta-db
+    environment:
+      POSTGRES_DB: sipeta
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - sipeta-network
+
+  nginx:
+    image: nginx:latest
+    container_name: sipeta-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - sipeta-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: sipeta-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - sipeta-network
+
+  grafana:
+    image: grafana/grafana
+    container_name: sipeta-grafana
+    user: "0"
+    ports:
+      - "3000:3000"
+    networks:
+      - sipeta-network
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: sipeta-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - sipeta-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: sipeta-cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    privileged: true
+    networks:
+      - sipeta-network
+
+networks:
+  sipeta-network:

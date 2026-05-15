@@ -65,6 +65,7 @@ class KasusController extends Controller
     // ─── STORE single ──────────────────────────────────────────────────────────
     public function store(Request $request)
     {
+        $user = $request->user();
         $validator = Validator::make($request->all(), [
             'penyakit_id' => 'required|exists:penyakit,id',
             'wilayah_id' => 'required|exists:wilayah,id',
@@ -95,7 +96,7 @@ class KasusController extends Controller
             'umur' => $request->umur,
             'jenis_kelamin' => $request->jenis_kelamin,
             'status' => $request->status,
-            'created_by' => $request->user()?->id,
+            'created_by' => $user->id,
         ]);
 
         return response()->json([

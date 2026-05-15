@@ -9,58 +9,73 @@ use App\Http\Controllers\FaskesController;
 use App\Http\Controllers\GisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\LogController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [SettingsController::class, 'profile']);
-    Route::post('/profile', [SettingsController::class, 'updateProfile']);
-    Route::put('/password', [SettingsController::class, 'updatePassword']);
-});
-
-Route::get('kasus/statistik', [KasusController::class, 'statistik']);
-Route::get('kasus/stats-summary', [KasusController::class, 'statsSummary']);
-
-// Handle
-Route::get('faskes', [FaskesController::class, 'index']);
-Route::post('kasus/import', [KasusController::class, 'bulkImport']);
-Route::delete('kasus/bulkDelete', [KasusController::class, 'bulkDelete']);
+// ─── Public Routes (tanpa auth) ──────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Statistik bisa diakses tanpa auth (opsional, bisa dipindah ke dalam auth jika perlu)
+Route::get('kasus/statistik', [KasusController::class, 'statistik']);
 
-// API Resource Routes
-Route::apiResource('penyakit', PenyakitController::class);
-Route::apiResource('wilayah', WilayahController::class);
-Route::apiResource('kasus', KasusController::class);
-Route::apiResource('faskes', FaskesController::class);
+// ─── Protected Routes (dengan auth:sanctum) ─────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // User
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    
+    // Profile
+    Route::get('/profile', [SettingsController::class, 'profile']);
+    Route::post('/profile', [SettingsController::class, 'updateProfile']);
+    Route::put('/password', [SettingsController::class, 'updatePassword']);
 
+    // Kasus CRUD
+    Route::post('/kasus', [KasusController::class, 'store']);
+    Route::put('/kasus/{id}', [KasusController::class, 'update']);
+    Route::delete('/kasus/{id}', [KasusController::class, 'destroy']);
+    Route::delete('/kasus/bulkDelete', [KasusController::class, 'bulkDelete']);
+    Route::post('/kasus/import', [KasusController::class, 'bulkImport']);
 
-// GIS routes
-Route::prefix('gis')->group(function () {
-    // Peta
-    Route::get('geojson',                  [GisController::class, 'geojson']);
-    Route::get('faskes',                   [GisController::class, 'faskes']);
-    Route::get('faskes/{id}/detail',       [GisController::class, 'faskesDetail']);
- 
-    // Clustering K-Means
-    Route::post('clustering/run',          [GisController::class, 'runClustering']);
-    Route::get ('clustering/result',       [GisController::class, 'clusteringResult']);
- 
-    // Chart & tabel
-    Route::get('trend',                    [GisController::class, 'trend']);
-    Route::get('epidemiologi',             [GisController::class, 'epidemiologi']);
+    // API Resources
+    Route::apiResource('penyakit', PenyakitController::class);
+    Route::apiResource('wilayah', WilayahController::class);
+    Route::apiResource('faskes', FaskesController::class);
+    
+    // GIS routes
+    Route::prefix('gis')->group(function () {
+        Route::get('geojson', [GisController::class, 'geojson']);
+        Route::get('faskes', [GisController::class, 'faskes']);
+        Route::get('faskes/{id}/detail', [GisController::class, 'faskesDetail']);
+        Route::get('geojson/default-clustering', [GisController::class, 'defaultClusteringGeojson']);
+        Route::post('clustering/run', [GisController::class, 'runClustering']);
+        Route::get('clustering/result', [GisController::class, 'clusteringResult']);
+        Route::get('trend', [GisController::class, 'trend']);
+        Route::get('epidemiologi', [GisController::class, 'epidemiologi']);
+    });
+
+    // Log routes
+    Route::prefix('logs')->group(function () {
+        Route::get('summary', [LogController::class, 'summary']);
+        Route::get('kasus', [LogController::class, 'riwayatKasus']);
+        Route::get('aktivitas', [LogController::class, 'riwayatAktivitas']);
+        Route::get('file', [LogController::class, 'riwayatFile']);
+    });
+});
+
+// ─── Public Read-only Routes ─────────────────────────────────────────────
+// Hanya GET yang publik, sisanya di dalam auth
+Route::get('kasus', [KasusController::class, 'index']);
+Route::get('kasus/{id}', [KasusController::class, 'show']);
+Route::get('faskes', [FaskesController::class, 'index']);
+
+Route::get('/metrics', function () {
+    return response('metrics');
 });

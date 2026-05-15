@@ -403,6 +403,7 @@ const DataKasus: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [importProgress, setImportProgress] = useState<{ done: number; total: number } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false); // Drag and drop state
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Toast
@@ -549,6 +550,49 @@ const DataKasus: React.FC = () => {
       msg => { showToast(msg, 'error'); setUploadedFile(null); }
     );
     if (fileRef.current) fileRef.current.value = '';
+  };
+
+  // ── Drag and Drop handlers ─────────────────────────────────────────────────
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    
+    // Validasi ekstensi file
+    const validExtensions = ['.csv', '.xlsx', '.xls'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    
+    if (!validExtensions.includes(fileExtension)) {
+      showToast('File harus berformat CSV atau Excel (.xlsx, .xls)', 'error');
+      return;
+    }
+    
+    setUploadedFile(file.name);
+    setPreviewData([]);
+    parseFile(file, penyakitList, wilayahList,
+      rows => setPreviewData(rows),
+      msg => { showToast(msg, 'error'); setUploadedFile(null); }
+    );
   };
 
   // ── Import all valid rows ──────────────────────────────────────────────────
@@ -864,19 +908,39 @@ const DataKasus: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Drop zone */}
+                {/* Drop zone dengan drag and drop */}
                 <label style={{ display: 'block', cursor: 'pointer' }}>
-                  <div className="dk-upload-area">
+                  <div 
+                    className={`dk-upload-area ${isDragActive ? 'dk-upload-area-active' : ''}`}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  >
                     <svg className="dk-upload-icon" width="32" height="32" fill="none" stroke="#185FA5" strokeWidth="1.5" viewBox="0 0 24 24">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
                     </svg>
                     <div className="dk-upload-title">
-                      {uploadedFile ? <>📄 {uploadedFile}</> : 'Klik atau seret file ke sini'}
+                      {uploadedFile 
+                        ? <>📄 {uploadedFile}</> 
+                        : isDragActive 
+                          ? 'Lepaskan file untuk upload' 
+                          : 'Klik atau seret file ke sini'
+                      }
                     </div>
-                    <div className="dk-upload-sub">Mendukung CSV dan Excel (.xlsx)</div>
+                    <div className="dk-upload-sub">
+                      {uploadedFile ? 'File siap diimport' : 'Mendukung CSV dan Excel (.xlsx)'}
+                    </div>
                   </div>
-                  <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" style={{ display: 'none' }} onChange={handleFileChange} />
+                  <input 
+                    ref={fileRef} 
+                    type="file" 
+                    accept=".csv,.xlsx,.xls" 
+                    style={{ display: 'none' }} 
+                    onChange={handleFileChange} 
+                  />
                 </label>
 
                 {/* Preview */}

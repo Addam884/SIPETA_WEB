@@ -10,6 +10,7 @@ use App\Http\Controllers\GisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\UserDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('aktivitas', [LogController::class, 'riwayatAktivitas']);
         Route::get('file', [LogController::class, 'riwayatFile']);
     });
+
+    // ─── DASHBOARD (PUBLIC) ───────────────────────────────────────────────────
+    Route::prefix('dashboard')->group(function () {
+    Route::get('summary',      [UserDashboardController::class, 'statsSummary']);
+    Route::get('statistik',    [UserDashboardController::class, 'statistik']);
+    Route::get('tren-bulanan', [UserDashboardController::class, 'trenBulanan']);
+    Route::get('stats-faskes', [UserDashboardController::class, 'statsFaskes']);
+});
+
+
 });
 
 

@@ -9,6 +9,7 @@ import Settings from "../pages/Settings";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import UserDashboard from "../pages/dashboard/UserDashboard";
 import SuperAdminDashboard from "../pages/dashboard/SuperAdminDashboard";
+import DataMasterLayout from "./DataMasterLayout";
 
 export type Role = "user" | "admin" | "superadmin";
 
@@ -154,7 +155,7 @@ function DashboardLayout({ role: _role }: DashboardLayoutProps) {
       <UserDashboard />,
     gis: <div>GIS Page</div>,
     datakasus: <Datakasus />,
-    datamaster: <div>Data Master Page</div>,
+    datamaster: <DataMasterLayout />,
     settings: <Settings />,
   };
 

@@ -6,6 +6,8 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperadminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import Register from "./pages/Register";
+import DataMasterLayout from "./layouts/DataMasterLayout";
+// import Penyakit from "./pages/datamaster/Penyakit";
 
 function App() {
   return (
@@ -27,9 +29,17 @@ function App() {
       <Route path="/superadmin" element={<DashboardLayout role="superadmin" />}>
         <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
         <Route path="dashboard" element={<SuperadminDashboard />} />
+        <Route path="datamaster" element={<DataMasterLayout />}>
+          {/* <Route path="penyakit" element={<Penyakit />} /> */}
+          {/* <Route path="populasi" element={<div>Halaman Populasi</div>} />
+          <Route path="wilayah" element={<div>Halaman Wilayah</div>} />
+          <Route path="faskes" element={<div>Halaman Faskes</div>} /> */}
+        </Route>
       </Route>
 
       <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+
+      
     </Routes>
   );
 }

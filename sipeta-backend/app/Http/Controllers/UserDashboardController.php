@@ -10,13 +10,23 @@ use Illuminate\Support\Facades\DB;
 class UserDashboardController extends Controller
 {
     // ─── STATS SUMMARY ────────────────────────────────────────────────────────
-    public function statsSummary()
+    // ─── STATS SUMMARY ────────────────────────────────────────────────────────
+    public function statsSummary(Request $request)
     {
         try {
-            $totalKasus   = Kasus::count();
+            $tahun      = $request->query('tahun');
+            $bulan      = $request->query('bulan');
+            $penyakitId = $request->query('penyakit_id');
+
+            $baseQuery = fn() => DB::table('kasus')
+                ->when($tahun,      fn($q) => $q->whereYear('tanggal_kasus', $tahun))
+                ->when($bulan,      fn($q) => $q->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan]))
+                ->when($penyakitId, fn($q) => $q->where('penyakit_id', $penyakitId));
+
+            $totalKasus   = $baseQuery()->count();
             $totalWilayah = Wilayah::count();
 
-            $penyakitDominan = DB::table('kasus')
+            $penyakitDominan = $baseQuery()
                 ->join('penyakit', 'kasus.penyakit_id', '=', 'penyakit.id')
                 ->select('penyakit.nama_penyakit', DB::raw('COUNT(*) as total'))
                 ->groupBy('penyakit.nama_penyakit')
@@ -34,16 +44,21 @@ class UserDashboardController extends Controller
         }
     }
 
-    // ─── STATISTIK PENYAKIT (stat cards + persentase) ─────────────────────────
+    // ─── STATISTIK ────────────────────────────────────────────────────────────
     public function statistik(Request $request)
     {
-        $bulan = $request->input('bulan', now()->format('Y-m'));
-        $tahun = $request->input('tahun', now()->year);
+        $bulan      = $request->input('bulan', now()->format('Y-m'));
+        $tahun      = $request->input('tahun', now()->year);
+        $penyakitId = $request->input('penyakit_id');
+
+        $filterBase = fn($q) => $q
+            ->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan])
+            ->when($penyakitId, fn($q2) => $q2->where('kasus.penyakit_id', $penyakitId));
 
         $penyakitTerbanyak = DB::table('kasus')
             ->join('penyakit', 'kasus.penyakit_id', '=', 'penyakit.id')
-            ->selectRaw("penyakit.nama_penyakit, penyakit.kode_icd, COUNT(*) as total")
-            ->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan])
+            ->selectRaw("penyakit.id, penyakit.nama_penyakit, penyakit.kode_icd, COUNT(*) as total")
+            ->tap($filterBase)
             ->groupBy('penyakit.id', 'penyakit.nama_penyakit', 'penyakit.kode_icd')
             ->orderByDesc('total')
             ->limit(5)
@@ -52,8 +67,8 @@ class UserDashboardController extends Controller
         $faskesTerbanyak = DB::table('kasus')
             ->join('fasilitas_kesehatan', 'kasus.faskes_id', '=', 'fasilitas_kesehatan.id')
             ->selectRaw("fasilitas_kesehatan.nama_faskes, COUNT(*) as total")
-            ->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan])
             ->whereNotNull('kasus.faskes_id')
+            ->tap($filterBase)
             ->groupBy('fasilitas_kesehatan.id', 'fasilitas_kesehatan.nama_faskes')
             ->orderByDesc('total')
             ->limit(5)
@@ -61,13 +76,14 @@ class UserDashboardController extends Controller
 
         $kasusByPenyakit = DB::table('kasus')
             ->join('penyakit', 'kasus.penyakit_id', '=', 'penyakit.id')
-            ->selectRaw("penyakit.nama_penyakit, COUNT(*) as total")
-            ->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan])
+            ->selectRaw("penyakit.id, penyakit.nama_penyakit, COUNT(*) as total")
+            ->tap($filterBase)
             ->groupBy('penyakit.id', 'penyakit.nama_penyakit')
             ->orderByDesc('total')
             ->get();
 
-        $base = fn() => Kasus::whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan]);
+        $base = fn() => Kasus::whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan])
+            ->when($penyakitId, fn($q) => $q->where('penyakit_id', $penyakitId));
 
         return response()->json([
             'bulan'              => $bulan,
@@ -82,7 +98,7 @@ class UserDashboardController extends Controller
         ]);
     }
 
-    // ─── TREN BULANAN (bar chart) ──────────────────────────────────────────────
+    // ─── TREN BULANAN ─────────────────────────────────────────────────────────
     public function trenBulanan(Request $request)
     {
         $tahun      = $request->query('tahun', now()->year);
@@ -116,17 +132,21 @@ class UserDashboardController extends Controller
         ]);
     }
 
-    // ─── STATS FASKES (progress bar puskesmas) ────────────────────────────────
+    // ─── STATS FASKES ─────────────────────────────────────────────────────────
     public function statsFaskes(Request $request)
     {
-        $tahun = $request->query('tahun');
-        $limit = (int) $request->query('limit', 5);
+        $tahun      = $request->query('tahun');
+        $bulan      = $request->query('bulan');
+        $penyakitId = $request->query('penyakit_id');
+        $limit      = (int) $request->query('limit', 5);
 
         $data = DB::table('kasus as k')
             ->join('fasilitas_kesehatan as f', 'k.faskes_id', '=', 'f.id')
             ->select('f.id', 'f.nama_faskes', DB::raw('COUNT(k.id) as jumlah_kasus'))
             ->whereNotNull('k.faskes_id')
-            ->when($tahun, fn($q) => $q->whereYear('k.tanggal_kasus', $tahun))
+            ->when($tahun,      fn($q) => $q->whereYear('k.tanggal_kasus', $tahun))
+            ->when($bulan,      fn($q) => $q->whereRaw("TO_CHAR(k.tanggal_kasus, 'YYYY-MM') = ?", [$bulan]))
+            ->when($penyakitId, fn($q) => $q->where('k.penyakit_id', $penyakitId))
             ->groupBy('f.id', 'f.nama_faskes')
             ->orderByDesc('jumlah_kasus')
             ->limit($limit)
@@ -134,7 +154,9 @@ class UserDashboardController extends Controller
 
         $total = DB::table('kasus')
             ->whereNotNull('faskes_id')
-            ->when($tahun, fn($q) => $q->whereYear('tanggal_kasus', $tahun))
+            ->when($tahun,      fn($q) => $q->whereYear('tanggal_kasus', $tahun))
+            ->when($bulan,      fn($q) => $q->whereRaw("TO_CHAR(tanggal_kasus, 'YYYY-MM') = ?", [$bulan]))
+            ->when($penyakitId, fn($q) => $q->where('penyakit_id', $penyakitId))
             ->count();
 
         $result = $data->map(fn($item) => [

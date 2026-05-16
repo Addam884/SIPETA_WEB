@@ -17,6 +17,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 // ── TYPES ──────────────────────────────────────────────────────────────────────
 
 interface PenyakitStat {
+  id?:           number;
   nama_penyakit: string;
   jumlah_kasus:  number;
   persentase:    number;
@@ -39,6 +40,12 @@ interface Summary {
   total_wilayah:           number;
   penyakit_dominan:        string | null;
   jumlah_penyakit_dominan: number;
+}
+
+// Tambah interface baru untuk list penyakit dropdown
+interface PenyakitOption {
+  id:            number;
+  nama_penyakit: string;
 }
 
 // ── API FETCH ──────────────────────────────────────────────────────────────────
@@ -68,23 +75,46 @@ export default function UserDashboard() {
   const [tahun,      setTahun]      = useState<number>(new Date().getFullYear());
   const [bulan,      setBulan]      = useState<string>(new Date().toISOString().slice(0, 7));
   const [penyakitId, setPenyakitId] = useState<string>("");
+  const [penyakitList, setPenyakitList] = useState<PenyakitOption[]>([]);
 
+  // Sync bulan saat tahun berubah
   useEffect(() => {
+    const m = String(new Date().getMonth() + 1).padStart(2, "0");
+    setBulan(`${tahun}-${m}`);
+  }, [tahun]);
+
+  // Fetch data saat filter berubah
+  useEffect(() => {
+    // Guard: pastikan bulan sudah sesuai tahun yang dipilih
+    // supaya tidak fetch dengan bulan lama saat tahun baru dipilih
+    if (!bulan.startsWith(String(tahun))) return;
+
     setLoading(true);
     setError(null);
 
+    const params = new URLSearchParams();
+    params.set('tahun', String(tahun));
+    params.set('bulan', bulan);
+    if (penyakitId) params.set('penyakit_id', penyakitId);
+
+    const paramsTren = new URLSearchParams();
+    paramsTren.set('tahun', String(tahun));
+    if (penyakitId) paramsTren.set('penyakit_id', penyakitId);
+
     Promise.all([
-      apiFetch<Summary>(`/dashboard/summary`),
-      apiFetch<any>(`/dashboard/statistik?bulan=${bulan}&tahun=${tahun}`),
-      apiFetch<{ data: TrenBulanan[] }>(`/dashboard/tren-bulanan?tahun=${tahun}${penyakitId ? `&penyakit_id=${penyakitId}` : ""}`),
-      apiFetch<{ data: FaskesStat[] }>(`/dashboard/stats-faskes?tahun=${tahun}&limit=5`),
+      apiFetch<Summary>(`/dashboard/summary?${params.toString()}`),
+      apiFetch<any>(`/dashboard/statistik?${params.toString()}`),
+      apiFetch<{ data: TrenBulanan[] }>(`/dashboard/tren-bulanan?${paramsTren.toString()}`),
+      apiFetch<{ data: FaskesStat[] }>(`/dashboard/stats-faskes?${params.toString()}&limit=5`),
     ])
       .then(([summaryRes, statistikRes, trenRes, faskesRes]) => {
         setSummary(summaryRes);
 
-        const penyakitRaw: any[]  = statistikRes.kasus_by_penyakit || [];
-        const totalKasus: number  = penyakitRaw.reduce((sum, p) => sum + Number(p.total), 0);
+        const penyakitRaw: any[] = statistikRes.kasus_by_penyakit || [];
+        const totalKasus: number = penyakitRaw.reduce((sum, p) => sum + Number(p.total), 0);
+
         const penyakitMapped: PenyakitStat[] = penyakitRaw.map(p => ({
+          id:            p.id,
           nama_penyakit: p.nama_penyakit,
           jumlah_kasus:  Number(p.total),
           persentase:    totalKasus > 0
@@ -95,6 +125,13 @@ export default function UserDashboard() {
         setStatsPenyakit(penyakitMapped);
         setTrenBulanan(trenRes.data   || []);
         setStatsFaskes(faskesRes.data || []);
+
+        setPenyakitList(prev =>
+          prev.length > 0 ? prev : penyakitRaw.map(p => ({
+            id:            p.id,
+            nama_penyakit: p.nama_penyakit,
+          }))
+        );
       })
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
@@ -125,49 +162,64 @@ export default function UserDashboard() {
       <div className="user-filters">
 
         {/* Tahun */}
-        <div className="user-filter-select">
-          <select value={tahun} onChange={e => setTahun(Number(e.target.value))}>
-            {[2023, 2024, 2025, 2026].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">Tahun</label>
+          <div className="user-filter-select">
+            <select value={tahun} onChange={e => setTahun(Number(e.target.value))}>
+              {[2023, 2024, 2025, 2026].map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="user-filter-arrow">
+              <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
 
         {/* Bulan */}
-        <div className="user-filter-select">
-          <select value={bulan} onChange={e => setBulan(e.target.value)}>
-            {Array.from({ length: 12 }, (_, i) => {
-              const m     = String(i + 1).padStart(2, "0");
-              const label = new Date(`${tahun}-${m}-01`).toLocaleString("id-ID", { month: "long" });
-              return (
-                <option key={m} value={`${tahun}-${m}`}>{label} {tahun}</option>
-              );
-            })}
-          </select>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">Bulan</label>
+          <div className="user-filter-select">
+            <select
+              value={bulan}
+              onChange={e => setBulan(e.target.value)}
+            >
+              {Array.from({ length: 12 }, (_, i) => {
+                const m      = String(i + 1).padStart(2, "0");
+                const thnVal = bulan.split("-")[0]; // ← ambil tahun dari bulan yang aktif
+                const label  = new Date(`${thnVal}-${m}-01`).toLocaleString("id-ID", { month: "long" });
+                return (
+                  <option key={m} value={`${thnVal}-${m}`}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="user-filter-arrow">
+              <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
 
         {/* Penyakit */}
-        <div className="user-filter-select">
-          <select value={penyakitId} onChange={e => setPenyakitId(e.target.value)}>
-            <option value="">Semua Penyakit</option>
-            {statsPenyakit.map((p, i) => (
-              <option key={i} value={p.nama_penyakit}>{p.nama_penyakit}</option>
-            ))}
-          </select>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">Penyakit</label>
+          <div className="user-filter-select">
+            <select value={penyakitId} onChange={e => setPenyakitId(e.target.value)}>
+              <option value="">Semua Penyakit</option>
+              {penyakitList.map(p => (
+                <option key={p.id} value={p.id}>{p.nama_penyakit}</option>
+              ))}
+            </select>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="user-filter-arrow">
+              <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
 
       </div>
 
-      {/* ── SUMMARY BANNER ── */}
+      {/* ── SUMMARY BANNER ──
       {summary && (
         <div className="user-summary-banner">
           <div className="user-summary-item">
@@ -191,7 +243,7 @@ export default function UserDashboard() {
             <span className="user-summary-label">Kasus Dominan</span>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ── MAIN ROW ── */}
       <div className="user-main-row">

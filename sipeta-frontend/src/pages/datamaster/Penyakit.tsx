@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
-import "../../styles/Datamaster.css";
+import "../../styles/DataMaster.css";
 
 interface Penyakit {
   id: number;

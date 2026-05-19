@@ -1,15 +1,5 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { Outlet } from "react-router-dom";
-import sipetaLogo from "../assets/logo.png";
-import sipetaLogoIcon from "../assets/logo2.png";
-import "../styles/DashboardLayout.css";
-import Datakasus from "../pages/datakasus.tsx";
-import Settings from "../pages/Settings";
-import AdminDashboard from "../pages/dashboard/AdminDashboard";
-import UserDashboard from "../pages/dashboard/UserDashboard";
-import SuperAdminDashboard from "../pages/dashboard/SuperAdminDashboard";
-import DataMasterLayout from "./DataMasterLayout";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -20,7 +10,6 @@ import "../styles/DashboardLayout.css";
 import { useAuth } from "../context/AuthContext";
 
 export type Role = "user" | "admin" | "superadmin";
-
 
 type DashboardLayoutProps = {
   role: Role;
@@ -196,17 +185,6 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
-
-  const pageMap: Record<MenuKey, ReactNode> = {
-    dashboard:
-      _role === "admin" ? <AdminDashboard /> :
-      _role === "superadmin" ? <SuperAdminDashboard /> :
-      <UserDashboard />,
-    gis: <div>GIS Page</div>,
-    datakasus: <Datakasus />,
-    datamaster: <DataMasterLayout />,
-    settings: <Settings />,
-  };
 
   return (
     <div

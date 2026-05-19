@@ -1,0 +1,86 @@
+/* =========================
+   WRAPPER
+========================= */
+.dm-wrapper {
+  padding: 28px;
+  background: #f6f8fb;
+  min-height: 100vh;
+}
+
+/* =========================
+   HEADER
+========================= */
+.dm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+
+.dm-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.dm-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* =========================
+   TABS
+========================= */
+.dm-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+  overflow-x: auto;
+}
+
+.dm-tab {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.dm-tab:hover {
+  background: #eef2ff;
+  color: #1d4ed8;
+}
+
+.dm-tab.active {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+/* =========================
+   CONTENT CARD
+========================= */
+.dm-content {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.dm-empty {
+  padding: 40px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}

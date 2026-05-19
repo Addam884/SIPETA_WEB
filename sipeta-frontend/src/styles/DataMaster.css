@@ -1,0 +1,125 @@
+/* =========================
+   DATAMASTER BASE PAGE
+========================= */
+
+.dm-page {
+  padding: 24px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+/* HEADER (same as datakasus) */
+.dm-header {
+  margin-bottom: 16px;
+}
+
+/* =========================
+   TAB STYLE (optional upgrade)
+========================= */
+
+.dm-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.dm-tab {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: 0.2s;
+  border: none;
+  background: transparent;
+}
+
+.dm-tab:hover {
+  background: #f3f4f6;
+}
+
+.dm-tab.active {
+  background: #185FA5;
+  color: white;
+}
+
+/* =========================
+   CARD OVERRIDE ALIGNMENT
+========================= */
+
+.dm-page .dk-card {
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+}
+
+/* =========================
+   TABLE ENHANCEMENT (biar sama)
+========================= */
+
+.dm-page .dk-table th {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.dm-page .dk-table td {
+  font-size: 13px;
+}
+
+.dm-page .dk-disease-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* =========================
+   BADGE VARIANT (reuse DK style)
+========================= */
+
+.dk-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dk-badge-sembuh {
+  background: #eaf3de;
+  color: #3b6d11;
+}
+
+.dk-badge-dirawat {
+  background: #e6f1fb;
+  color: #185fa5;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.dk-actions-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.dk-action-icon {
+  border: none;
+  background: #f3f4f6;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dk-action-icon:hover {
+  transform: scale(1.05);
+  background: #e5e7eb;
+}
+
+.dk-action-edit:hover {
+  background: #e6f1fb;
+}
+
+.dk-action-delete:hover {
+  background: #fcebea;
+}

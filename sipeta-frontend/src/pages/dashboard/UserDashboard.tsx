@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/Dashboard.css";
 
 const diseaseIcons: string[]   = ["🦠", "🫁", "🔬", "🩸", "💧", "🧬", "🫀"];
@@ -68,7 +68,7 @@ export default function UserDashboard() {
   const [statsPenyakit, setStatsPenyakit] = useState<PenyakitStat[]>([]);
   const [trenBulanan,   setTrenBulanan]   = useState<TrenBulanan[]>([]);
   const [statsFaskes,   setStatsFaskes]   = useState<FaskesStat[]>([]);
-  const [summary,       setSummary]       = useState<Summary | null>(null);
+  const [,       setSummary]       = useState<Summary | null>(null);
   const [loading,       setLoading]       = useState<boolean>(true);
   const [error,         setError]         = useState<string | null>(null);
 

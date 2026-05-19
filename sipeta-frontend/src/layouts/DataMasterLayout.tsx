@@ -5,11 +5,10 @@ import Faskes from "../pages/datamaster/Faskes";
 import "../styles/DataMasterLayout.css";
 
 export default function DataMasterLayout() {
-  const [activeTab, setActiveTab] = useState<"penyakit" | "populasi" | "wilayah" | "faskes">("penyakit");
+  const [activeTab, setActiveTab] = useState<"penyakit" | "wilayah" | "faskes">("penyakit");
 
   const tabs = [
     { name: "Penyakit", path: "penyakit" },
-    { name: "Populasi", path: "populasi" },
     { name: "Wilayah", path: "wilayah" },
     { name: "Faskes", path: "faskes" },
   ];
@@ -17,26 +16,11 @@ export default function DataMasterLayout() {
   const tabComponents: Record<string, React.ReactNode> = {
     penyakit: <Penyakit />,
     wilayah: <Wilayah />,
-    populasi: (
-      <div className="dm-empty">
-        🚧 Populasi Page belum tersedia
-      </div>
-    ),
     faskes: <Faskes/>,
   };
 
   return (
     <div className="dm-wrapper">
-
-      {/* HEADER */}
-      <div className="dm-header">
-        <div>
-          <h1 className="dm-title">Master Data</h1>
-          <p className="dm-subtitle">
-            Kelola semua data referensi sistem
-          </p>
-        </div>
-      </div>
 
       {/* TABS */}
       <div className="dm-tabs">

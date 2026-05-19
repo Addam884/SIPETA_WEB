@@ -1,32 +1,37 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Tambahkan useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
+import api from "../services/api";
+import PasswordInput from "../components/PasswordInput";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  
-  const navigate = useNavigate(); // Inisialisasi useNavigate
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log({
-      email,
-      password,
-      remember
-    });
+    try {
+      localStorage.removeItem("token");
 
-    // SIMULASI LOGIN API & ROLE ROUTING
-    // Nanti logika ini diganti dengan response dari backend Laravel kamu
-    if (email === 'admin@sipeta.com') {
-      navigate('/admin/dashboard');
-    } else if (email === 'superadmin@sipeta.com') {
-      navigate('/superadmin/dashboard');
-    } else {
-      // Default: lempar ke dashboard user biasa
-      navigate('/user/dashboard');
+      const res = await api.post("/login", { email, password });
+
+      const { token, user } = res.data;
+
+      // simpan token
+      localStorage.setItem("token", token);
+
+      setUser(user);
+
+      navigate(`/${user.role}/dashboard`);
+
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Login gagal");
     }
   };
 
@@ -124,12 +129,10 @@ function Login() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
 
-                <input
-                  type="password"
-                  placeholder="Masukkan password..."
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  placeholder="Masukkan password..."
                 />
 
               </div>

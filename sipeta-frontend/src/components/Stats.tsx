@@ -1,11 +1,69 @@
-const stats = [
-  { value: "1,245", label: "Total Kasus", icon: "🦠", trend: "+12% bulan ini" },
-  { value: "25", label: "Wilayah Terpantau", icon: "📍", trend: "Seluruh kecamatan" },
-  { value: "DBD", label: "Penyakit Dominan", icon: "⚠️", trend: "48% dari total kasus" },
-  { value: "3", label: "Zona Risiko Tinggi", icon: "🔴", trend: "Perlu perhatian" },
-];
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 function Stats() {
+  const [stats, setStats] = useState([
+    { value: "-", label: "Total Kasus", icon: "🦠", trend: "Loading..." },
+    { value: "-", label: "Wilayah Terpantau", icon: "📍", trend: "Loading..." },
+    { value: "-", label: "Penyakit Dominan", icon: "⚠️", trend: "Loading..." },
+    { value: "-", label: "Zona Risiko Tinggi", icon: "🔴", trend: "Loading..." },
+  ]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // 🔹 Ambil summary utama
+        const res = await api.get("/kasus/stats-summary");
+        const data = res.data;
+
+        // 🔹 Ambil hasil clustering (periode sekarang)
+        const now = new Date();
+        const periode = now.toISOString().slice(0, 7); // format YYYY-MM
+
+        const geoRes = await api.get("/gis/geojson", {
+          params: { periode }
+        });
+
+        const features = geoRes.data?.geojson?.features ?? [];
+
+        const zonaTinggi = features.filter(
+          (f: any) => f.properties.cluster_id === 2
+        ).length;
+
+        setStats([
+          {
+            value: data.total_kasus,
+            label: "Total Kasus",
+            icon: "🦠",
+            trend: "Semua data kasus",
+          },
+          {
+            value: data.total_wilayah,
+            label: "Wilayah Terpantau",
+            icon: "📍",
+            trend: "Wilayah terdata",
+          },
+          {
+            value: data.penyakit_dominan ?? "-",
+            label: "Penyakit Dominan",
+            icon: "⚠️",
+            trend: `${data.jumlah_penyakit_dominan ?? 0} kasus`,
+          },
+          {
+            value: zonaTinggi, // 🔥 HASIL UTAMA
+            label: "Zona Risiko Tinggi",
+            icon: "🔴",
+            trend: `${zonaTinggi} kecamatan`,
+          },
+        ]);
+      } catch (err) {
+        console.error("Gagal ambil stats:", err);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <section className="stats-section">
       <div className="stats-grid">

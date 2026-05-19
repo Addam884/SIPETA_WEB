@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "../styles/Login.css";
+import api from "../services/api";
+import { useNavigate } from "react-router-dom";
+import PasswordInput from "../components/PasswordInput";
 
 function Register() {
     const [name, setName] = useState("");
@@ -7,22 +10,28 @@ function Register() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const navigate = useNavigate();
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validasi sederhana
         if (password !== confirmPassword) {
             alert("Password tidak sama!");
             return;
         }
 
-        console.log({
-            name,
-            email,
-            password,
-        });
+        try {
+            await api.post("/register", {
+                name,
+                email,
+                password,
+            });
 
-        // TODO: panggil API register di sini
+            alert("Register berhasil!");
+            navigate("/login");
+
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Register gagal");
+        }
     };
 
     return (
@@ -130,12 +139,10 @@ function Register() {
                                     <rect x="3" y="11" width="18" height="11" rx="2" />
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                 </svg>
-                                <input
-                                    type="password"
-                                    placeholder="Masukkan password..."
+                                <PasswordInput
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    required
+                                    placeholder="Masukkan password..."
                                 />
                             </div>
                         </div>
@@ -148,12 +155,10 @@ function Register() {
                                     <rect x="3" y="11" width="18" height="11" rx="2" />
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                 </svg>
-                                <input
-                                    type="password"
-                                    placeholder="Ulangi password..."
+                                <PasswordInput
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
+                                    placeholder="Masukkan password..."
                                 />
                             </div>
                         </div>

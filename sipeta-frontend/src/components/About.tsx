@@ -12,7 +12,7 @@ function About() {
 
           <p className="about-desc">
             SIPETA memanfaatkan teknologi Geographic Information System (GIS) terkini untuk
-            memvisualisasikan persebaran penyakit secara interaktif, membantu dinas kesehatan
+            memvisualisasikan persebaran penyakit secara interaktif, membantu dinas kesehatan Jember
             dalam merespons wabah lebih cepat dan akurat.
           </p>
 
@@ -24,7 +24,7 @@ function About() {
 
             <div className="highlight-item">
               <div className="highlight-icon">✓</div>
-              <span>Pembaruan data otomatis setiap hari</span>
+              <span>Pembaruan data otomatis</span>
             </div>
 
           </div>
@@ -38,7 +38,7 @@ function About() {
 
             <div className="visual-center">
               <div className="vc-icon">🏥</div>
-              <div className="vc-text">GIS Health</div>
+              <div className="vc-text">GIS SIPETA</div>
             </div>
           </div>
         </div>

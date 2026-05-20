@@ -12,7 +12,7 @@ const miniChartPaths: string[] = [
   "M0 20 Q18 24, 30 18 T55 22 T75 16 T100 20",
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
 
 // ── TYPES ──────────────────────────────────────────────────────────────────────
 

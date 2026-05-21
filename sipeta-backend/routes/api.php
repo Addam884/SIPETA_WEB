@@ -11,6 +11,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\AdminDashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +99,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('tren-bulanan', [UserDashboardController::class, 'trenBulanan']);
     Route::get('stats-faskes', [UserDashboardController::class, 'statsFaskes']);
 });
+
+// ─── ADMIN DASHBOARD ─────────────────────────────────────
+Route::prefix('dashboard-admin')->group(function () {
+
+    Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
+
+    Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']);
+
+    Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']);
+
+    Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
+
+    Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
+});
+
 
 
 });

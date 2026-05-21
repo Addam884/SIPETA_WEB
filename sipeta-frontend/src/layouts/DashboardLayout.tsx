@@ -316,7 +316,7 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
               <img
                 src={
                   user?.avatar
-                    ? `http://103.157.27.220:8000/storage/${user.avatar}`
+                    ? `http://127.0.0.1:8000/storage/${user.avatar}`
                     : "https://i.pravatar.cc/96"
                 }
                 alt="Profil pengguna"

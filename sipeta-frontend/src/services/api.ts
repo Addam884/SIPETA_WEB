@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://103.157.27.220:8000/api',
+  baseURL: 'http://127.0.0.1:8000/api',
   headers: {
     Accept: 'application/json',
   },
 });
 
-// 🔥 AUTO TOKEN
+// AUTO TOKEN
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 

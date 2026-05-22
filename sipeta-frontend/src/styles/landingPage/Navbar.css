@@ -10,7 +10,7 @@
   height: 70px;
   background: rgba(10, 61, 107, 0.97);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nav-brand {
@@ -43,13 +43,14 @@
 
 .nav-links {
   display: flex;
+  align-items: center;
   list-style: none;
   gap: 8px;
 }
 
 .nav-item {
   padding: 8px 16px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   border-radius: 8px;
   font-size: 14px;
@@ -59,8 +60,20 @@
 
 .nav-item:hover, .nav-item.active {
   color: white;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
+
+/* ==========================================================================
+   PENTING: SEMBUNYIKAN TOMBOL LOGIN DEFAULT AGAR TIDAK MUNCUL GANDA
+   ========================================================================== */
+.nav-item-login-mobile {
+  display: none; /* Sembunyikan versi mobile secara default di desktop */
+}
+
+.btn-login-desktop {
+  display: none; /* Sembunyikan versi desktop terlebih dahulu */
+}
+/* ========================================================================== */
 
 .btn-login {
   display: flex;
@@ -84,78 +97,102 @@
 }
 
 /* ===== HAMBURGER ===== */
-
-.menu-toggle{
-  display:none;
-  flex-direction:column;
-  gap:5px;
-  cursor:pointer;
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
 }
 
-.menu-toggle span{
-  width:24px;
-  height:3px;
-  background:white;
-  border-radius:2px;
+.menu-toggle span {
+  width: 24px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
 }
 
-/* ===== RESPONSIVE NAVBAR ===== */
+/* ===== RESPONSIVE NAVBAR (MODE MOBILE) ===== */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 20px;
+  }
 
-@media (max-width:768px){
+  /* Pastikan versi desktop tidak muncul di mobile */
+  .btn-login-desktop {
+    display: none !important;
+  }
 
-.navbar{
-  padding:0 20px;
+  .menu-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 61, 107, 0.98);
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 20px 0;
+    display: none;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-item {
+    width: 100%;
+    text-align: center;
+    padding: 14px 0;
+  }
+
+  /* Tampilkan tombol login versi mobile di dalam menu hamburger */
+  .nav-item-login-mobile {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 14px 0;
+  }
+
+  .btn-login {
+    padding: 10px 24px;
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .btn-login svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
-.menu-toggle{
-  display:flex;
-}
+/* ===== DESKTOP NAV POSITION (MODE WEB / ABSOLUTELY CENTERED) ===== */
+@media (min-width: 769px) {
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.nav-links{
-  position:absolute;
-  top:70px;
-  left:0;
-  width:100%;
-  background:rgba(10,61,107,0.98);
-  flex-direction:column;
-  align-items:center;
-  gap:0;
-  padding:20px 0;
-  display:none;
-}
+  /* Menaruh menu teks tepat di tengah layar komputer */
+  .nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+  }
 
-.nav-links.open{
-  display:flex;
-}
+  /* Pastikan versi mobile benar-benar mati di layar desktop */
+  .nav-item-login-mobile {
+    display: none !important;
+  }
 
-.nav-item{
-  width:100%;
-  text-align:center;
-  padding:14px 0;
-}
-
-.btn-login{
-  padding:6px 14px;
-  font-size:12px;
-  gap:6px;
-  margin-left: 40px;
-}
-
-.btn-login svg{
-  width:14px;
-  height:14px;
-}
-
-}
-
-/* ===== DESKTOP NAV POSITION ===== */
-
-@media (min-width:769px){
-
-.nav-links{
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
+  /* Tampilkan hanya tombol login desktop utama di pojok kanan navbar */
+  .btn-login-desktop {
+    display: flex;
+  }
 }

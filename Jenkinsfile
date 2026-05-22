@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/USERNAME/sipeta.git'
+                url: 'https://github.com/Addam884/SIPETA_WEB'
             }
         }
 

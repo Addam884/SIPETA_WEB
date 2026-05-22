@@ -28,8 +28,8 @@ services:
       POSTGRES_DB: sipeta
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - sipeta_db_data:/var/lib/postgresql/data  # 🔥 Brankas data untuk Swarm
     networks:

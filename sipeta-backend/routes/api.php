@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\SuperAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('stats-faskes', [UserDashboardController::class, 'statsFaskes']);
 });
 
+    Route::get('/superadmin/dashboard', [SuperadminController::class, 'dashboard']);
 
 });
 

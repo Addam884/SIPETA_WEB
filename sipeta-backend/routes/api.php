@@ -116,6 +116,19 @@ Route::prefix('dashboard-admin-controller')->group(function () {
 
 
 
+
+
+// Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
+Route::prefix('dashboard-admin-controller')->group(function () {
+    Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
+    Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
+    Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
+    Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
+    Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
+});
+
+
+
 });
 
 

@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/Dashboard.css";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Stats {
@@ -41,11 +50,16 @@ interface FileImport {
 }
 
 interface KasusLog {
-  id: number;
-  kasus_id: number;
-  aksi: string;
-  user: string;
-  timestamp: string;
+  id:            number;
+  kasus_id:      number;
+  aksi:          string;
+  user:          string;
+  nama_penyakit: string;
+  kode_icd:      string;
+  wilayah:       string;
+  faskes:        string;
+  tanggal_kasus: string | null;
+  timestamp:     string;
 }
 
 interface DashboardData {
@@ -91,7 +105,7 @@ const getStatCards = (stats: Stats) => [
   { label: "Log Error",        value: fmt(stats.logError),      icon: "⚠️", color: "#dc2626", bg: "#fef2f2" },
 ];
 
-// ─── MOCK DATA (dipakai saat fetch gagal / development) ───────────────────────
+// ─── Mock Data ────────────────────────────────────────────────────────────────
 const MOCK: DashboardData = {
   stats: {
     totalKasus: 1247, totalUsers: 38, totalFaskes: 12,
@@ -108,35 +122,45 @@ const MOCK: DashboardData = {
     jumlah: Math.floor(60 + Math.random() * 120),
   })),
   recent_activity: [
-    { user: "Admin Jember",  aktivitas: "Login",       modul: "Auth",    deskripsi: null,                  timestamp: new Date(Date.now()-3*60000).toISOString() },
-    { user: "Petugas Patrang",aktivitas: "Tambah Kasus",modul: "Kasus",  deskripsi: "Kasus ISPA baru",    timestamp: new Date(Date.now()-15*60000).toISOString() },
-    { user: "Admin Mangli",  aktivitas: "Import File", modul: "Import",  deskripsi: "data_april.xlsx",    timestamp: new Date(Date.now()-45*60000).toISOString() },
-    { user: "Superadmin",    aktivitas: "Update User", modul: "Settings",deskripsi: "Ubah role petugas",  timestamp: new Date(Date.now()-2*3600000).toISOString() },
+    { user: "Admin Jember",   aktivitas: "Login",        modul: "Auth",     deskripsi: null,               timestamp: new Date(Date.now()-3*60000).toISOString() },
+    { user: "Petugas Patrang",aktivitas: "Tambah Kasus", modul: "Kasus",    deskripsi: "Kasus ISPA baru",  timestamp: new Date(Date.now()-15*60000).toISOString() },
+    { user: "Admin Mangli",   aktivitas: "Import File",  modul: "Import",   deskripsi: "data_april.xlsx",  timestamp: new Date(Date.now()-45*60000).toISOString() },
+    { user: "Superadmin",     aktivitas: "Update User",  modul: "Settings", deskripsi: "Ubah role petugas",timestamp: new Date(Date.now()-2*3600000).toISOString() },
   ],
   recent_imports: [
-    { nama_file: "data_april_2025.xlsx", uploaded_by: "Admin Mangli",   tanggal_upload: new Date(Date.now()-3600000).toISOString(),   status: "sukses",  jumlah_data: 142 },
-    { nama_file: "kasus_maret.xlsx",     uploaded_by: "Admin Jember",   tanggal_upload: new Date(Date.now()-86400000).toISOString(),   status: "sukses",  jumlah_data: 98  },
-    { nama_file: "data_feb.xlsx",        uploaded_by: "Petugas Patrang", tanggal_upload: new Date(Date.now()-2*86400000).toISOString(), status: "gagal",   jumlah_data: 0   },
+    { nama_file: "data_april_2025.xlsx", uploaded_by: "Admin Mangli",    tanggal_upload: new Date(Date.now()-3600000).toISOString(),    status: "sukses", jumlah_data: 142 },
+    { nama_file: "kasus_maret.xlsx",     uploaded_by: "Admin Jember",    tanggal_upload: new Date(Date.now()-86400000).toISOString(),   status: "sukses", jumlah_data: 98  },
+    { nama_file: "data_feb.xlsx",        uploaded_by: "Petugas Patrang", tanggal_upload: new Date(Date.now()-2*86400000).toISOString(), status: "gagal",  jumlah_data: 0   },
   ],
   kasus_log: [
-    { id: 1, kasus_id: 501, aksi: "Tambah", user: "Petugas Patrang",  timestamp: new Date(Date.now()-10*60000).toISOString() },
-    { id: 2, kasus_id: 499, aksi: "Edit",   user: "Admin Jember",     timestamp: new Date(Date.now()-30*60000).toISOString() },
-    { id: 3, kasus_id: 488, aksi: "Hapus",  user: "Superadmin",       timestamp: new Date(Date.now()-60*60000).toISOString() },
-    { id: 4, kasus_id: 477, aksi: "Tambah", user: "Petugas Mangli",   timestamp: new Date(Date.now()-90*60000).toISOString() },
+    { id: 1, kasus_id: 101, aksi: "Tambah", user: "Petugas Patrang", nama_penyakit: "ISPA", kode_icd: "J06.9", wilayah: "Jember", faskes: "Puskesmas Patrang", tanggal_kasus: new Date(Date.now()-3*86400000).toISOString(), timestamp: new Date(Date.now()-3*86400000).toISOString() },
+    { id: 2, kasus_id: 102, aksi: "Edit",   user: "Admin Jember",   nama_penyakit: "TBC",  kode_icd: "A15.0", wilayah: "Jember", faskes: "RSUD Jember",     tanggal_kasus: new Date(Date.now()-2*86400000).toISOString(), timestamp: new Date(Date.now()-2*86400000).toISOString() },
+    { id: 3, kasus_id: 103, aksi: "Hapus",  user: "Admin Mangli",   nama_penyakit: "Diare", kode_icd: "A09",   wilayah: "Lumajang", faskes: "Puskesmas Senduro", tanggal_kasus: new Date(Date.now()-86400000).toISOString(), timestamp: new Date(Date.now()-86400000).toISOString() },
   ],
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function SuperadminDashboard() {
-  const [data, setData]       = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError]     = useState<string | null>(null);
+
+  // ✅ SEMUA useState harus di dalam component
+  const [data,         setData]         = useState<DashboardData | null>(null);
+  const [loading,      setLoading]      = useState<boolean>(true);
+  const [error,        setError]        = useState<string | null>(null);
+  const [tahunFilter,  setTahunFilter]  = useState<number>(new Date().getFullYear());
 
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
+  // ✅ handleReset juga harus di dalam component
+  const handleReset = () => {
+    setTahunFilter(new Date().getFullYear());
+  };
+
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     const token = localStorage.getItem("token");
-    fetch(`${API_BASE}/superadmin/dashboard`, {
+    fetch(`${API_BASE}/superadmin/dashboard?tahun=${tahunFilter}`, {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
@@ -152,13 +176,12 @@ export default function SuperadminDashboard() {
         setLoading(false);
       })
       .catch((err) => {
-        // Fallback ke mock data jika API belum siap
         console.warn("API error, pakai mock data:", err.message);
         setData(MOCK);
         setError("Menggunakan data dummy (API belum terhubung)");
         setLoading(false);
       });
-  }, []);
+  }, [tahunFilter]);
 
   if (loading) return <div className="sa-loading">Memuat data dashboard…</div>;
   if (!data)   return null;
@@ -169,11 +192,40 @@ export default function SuperadminDashboard() {
     const found = tren_kasus.find((t) => t.bulan_ke === i + 1);
     return found ? Number(found.jumlah) : 0;
   });
-  const maxBar = Math.max(...barData, 1);
   const totalByRole = users_by_role.reduce((s, x) => s + Number(x.jumlah), 0);
 
   return (
     <div className="sa-dashboard">
+
+      {/* ── FILTER BAR ── */}
+      <div className="sa-filter-bar">
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">Tahun</label>
+          <div className="user-filter-select">
+            <select
+              value={tahunFilter}
+              onChange={e => setTahunFilter(Number(e.target.value))}
+            >
+              {[2023, 2024, 2025, 2026].map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="user-filter-arrow">
+              <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">&nbsp;</label>
+          <button className="user-filter-reset" onClick={handleReset}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1v4h4M13 7A6 6 0 1 1 7 1a6 6 0 0 1 4.243 1.757L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Reset
+          </button>
+        </div>
+      </div>
 
       {/* ── DEV WARNING ── */}
       {error && (
@@ -200,34 +252,44 @@ export default function SuperadminDashboard() {
       {/* ── ROW 2: CHART + ROLE ── */}
       <div className="sa-row2">
 
-        {/* Bar Chart */}
+        {/* Line Chart */}
         <div className="card-v2">
           <div className="sa-card-header">
             <span className="card-title" style={{ marginBottom: 0 }}>
-              Tren Kasus {new Date().getFullYear()}
+              Tren Kasus {tahunFilter}
             </span>
           </div>
-          <div className="sa-bar-wrapper">
-            <div className="sa-y-axis">
-              {[maxBar, Math.round(maxBar * 0.75), Math.round(maxBar * 0.5), Math.round(maxBar * 0.25), 0].map((v, i) => (
-                <span key={i} className="sa-y-label">{v}</span>
-              ))}
-            </div>
-            <div className="sa-bars">
-              {barData.map((h, i) => (
-                <div key={i} className="sa-bar-item">
-                  <div className="sa-bar-inner">
-                    <div
-                      className="sa-bar"
-                      style={{ height: `${(h / maxBar) * 100}%` }}
-                      title={`${MONTHS[i]}: ${h} kasus`}
-                    />
-                  </div>
-                  <span className="sa-bar-label">{MONTHS[i]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {barData.every(v => v === 0) ? (
+            <div className="dashboard-empty">Tidak ada data tren untuk tahun {tahunFilter}</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart
+                data={MONTHS.map((bulan, i) => ({ bulan, jumlah: barData[i] }))}
+                margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="4 4" stroke="var(--border)" />
+                <XAxis dataKey="bulan" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    background:   "var(--bg-card)",
+                    border:       "1px solid var(--border)",
+                    borderRadius: "8px",
+                    fontSize:     "0.85rem",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="jumlah"
+                  name="Jumlah Kasus"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: "#6366f1" }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         {/* User per Role */}
@@ -291,14 +353,24 @@ export default function SuperadminDashboard() {
                   className="sa-aksi-badge"
                   style={{
                     background: (AKSI_COLOR[k.aksi] ?? "#64748b") + "20",
-                    color: AKSI_COLOR[k.aksi] ?? "#64748b",
+                    color:      AKSI_COLOR[k.aksi] ?? "#64748b",
                   }}
                 >
                   {k.aksi}
                 </div>
                 <div className="sa-log-body">
                   <div className="sa-log-title">
-                    Kasus <strong>#{k.kasus_id}</strong> oleh {k.user}
+                    <strong>{k.nama_penyakit}</strong>
+                    <span className="sa-badge">{k.kode_icd}</span>
+                  </div>
+                  <div className="sa-log-desc">
+                    {k.wilayah} · {k.faskes}
+                    {k.tanggal_kasus && (
+                      <span> · {new Date(k.tanggal_kasus).toLocaleDateString("id-ID")}</span>
+                    )}
+                  </div>
+                  <div className="sa-log-desc" style={{ color: "#94a3b8", fontSize: "0.78rem" }}>
+                    oleh {k.user}
                   </div>
                 </div>
                 <div className="sa-log-time">{timeAgo(k.timestamp)}</div>

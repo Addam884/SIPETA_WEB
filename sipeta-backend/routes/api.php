@@ -12,6 +12,8 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\AdminDashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +28,9 @@ use App\Http\Controllers\SuperAdminController;
 // Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Stats Dashboard
 Route::get('/kasus/stats-summary', [KasusController::class, 'statsSummary']);
@@ -97,6 +102,19 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
     Route::get('/superadmin/dashboard', [SuperadminController::class, 'dashboard']);
+
+
+
+// Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
+Route::prefix('dashboard-admin-controller')->group(function () {
+    Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
+    Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
+    Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
+    Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
+    Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
+});
+
+
 
 });
 

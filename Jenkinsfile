@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = "sipeta"
+        STACK_NAME = "sipeta"
+        PROJECT_DIR = "/var/jenkins_home/workspace/SIPETA"
     }
 
     stages {
@@ -14,29 +15,47 @@ pipeline {
             }
         }
 
-        stage('Build Backend') {
+        stage('Build Backend Image') {
             steps {
-                sh 'docker compose build backend'
+                sh '''
+                docker build -t sipeta-backend:latest ./sipeta-backend
+                '''
             }
         }
 
-        stage('Build Frontend') {
+        stage('Build Frontend Image') {
             steps {
-                sh 'docker compose build frontend'
+                sh '''
+                docker build -t sipeta-frontend:latest ./sipeta-frontend
+                '''
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Docker Swarm') {
             steps {
-                sh 'docker compose down'
-                sh 'docker compose up -d'
+                sh '''
+                docker stack deploy -c docker-compose.yml sipeta
+                '''
             }
         }
 
-        stage('Cleanup') {
+        stage('Verify Services') {
             steps {
-                sh 'docker image prune -f'
+                sh '''
+                docker service ls
+                '''
             }
+        }
+    }
+
+    post {
+
+        success {
+            echo 'SIPETA deployed successfully'
+        }
+
+        failure {
+            echo 'Deploy failed'
         }
     }
 }

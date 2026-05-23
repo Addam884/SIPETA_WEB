@@ -122,10 +122,10 @@ const MOCK: DashboardData = {
     jumlah: Math.floor(60 + Math.random() * 120),
   })),
   recent_activity: [
-    { user: "Admin Jember",   aktivitas: "Login",        modul: "Auth",     deskripsi: null,               timestamp: new Date(Date.now()-3*60000).toISOString() },
-    { user: "Petugas Patrang",aktivitas: "Tambah Kasus", modul: "Kasus",    deskripsi: "Kasus ISPA baru",  timestamp: new Date(Date.now()-15*60000).toISOString() },
-    { user: "Admin Mangli",   aktivitas: "Import File",  modul: "Import",   deskripsi: "data_april.xlsx",  timestamp: new Date(Date.now()-45*60000).toISOString() },
-    { user: "Superadmin",     aktivitas: "Update User",  modul: "Settings", deskripsi: "Ubah role petugas",timestamp: new Date(Date.now()-2*3600000).toISOString() },
+    { user: "Admin Jember",    aktivitas: "Login",        modul: "Auth",     deskripsi: null,               timestamp: new Date(Date.now()-3*60000).toISOString() },
+    { user: "Petugas Patrang", aktivitas: "Tambah Kasus", modul: "Kasus",    deskripsi: "Kasus ISPA baru",  timestamp: new Date(Date.now()-15*60000).toISOString() },
+    { user: "Admin Mangli",    aktivitas: "Import File",  modul: "Import",   deskripsi: "data_april.xlsx",  timestamp: new Date(Date.now()-45*60000).toISOString() },
+    { user: "Superadmin",      aktivitas: "Update User",  modul: "Settings", deskripsi: "Ubah role petugas",timestamp: new Date(Date.now()-2*3600000).toISOString() },
   ],
   recent_imports: [
     { nama_file: "data_april_2025.xlsx", uploaded_by: "Admin Mangli",    tanggal_upload: new Date(Date.now()-3600000).toISOString(),    status: "sukses", jumlah_data: 142 },
@@ -133,32 +133,30 @@ const MOCK: DashboardData = {
     { nama_file: "data_feb.xlsx",        uploaded_by: "Petugas Patrang", tanggal_upload: new Date(Date.now()-2*86400000).toISOString(), status: "gagal",  jumlah_data: 0   },
   ],
   kasus_log: [
-    { id: 1, kasus_id: 101, aksi: "Tambah", user: "Petugas Patrang", nama_penyakit: "ISPA", kode_icd: "J06.9", wilayah: "Jember", faskes: "Puskesmas Patrang", tanggal_kasus: new Date(Date.now()-3*86400000).toISOString(), timestamp: new Date(Date.now()-3*86400000).toISOString() },
-    { id: 2, kasus_id: 102, aksi: "Edit",   user: "Admin Jember",   nama_penyakit: "TBC",  kode_icd: "A15.0", wilayah: "Jember", faskes: "RSUD Jember",     tanggal_kasus: new Date(Date.now()-2*86400000).toISOString(), timestamp: new Date(Date.now()-2*86400000).toISOString() },
-    { id: 3, kasus_id: 103, aksi: "Hapus",  user: "Admin Mangli",   nama_penyakit: "Diare", kode_icd: "A09",   wilayah: "Lumajang", faskes: "Puskesmas Senduro", tanggal_kasus: new Date(Date.now()-86400000).toISOString(), timestamp: new Date(Date.now()-86400000).toISOString() },
+    { id: 1, kasus_id: 101, aksi: "Tambah", user: "Petugas Patrang", nama_penyakit: "ISPA",  kode_icd: "J06.9", wilayah: "Jember",   faskes: "Puskesmas Patrang",  tanggal_kasus: new Date(Date.now()-3*86400000).toISOString(), timestamp: new Date(Date.now()-3*86400000).toISOString() },
+    { id: 2, kasus_id: 102, aksi: "Edit",   user: "Admin Jember",   nama_penyakit: "TBC",   kode_icd: "A15.0", wilayah: "Jember",   faskes: "RSUD Jember",        tanggal_kasus: new Date(Date.now()-2*86400000).toISOString(), timestamp: new Date(Date.now()-2*86400000).toISOString() },
+    { id: 3, kasus_id: 103, aksi: "Hapus",  user: "Admin Mangli",   nama_penyakit: "Diare", kode_icd: "A09",   wilayah: "Lumajang", faskes: "Puskesmas Senduro",  tanggal_kasus: new Date(Date.now()-86400000).toISOString(),   timestamp: new Date(Date.now()-86400000).toISOString() },
   ],
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function SuperadminDashboard() {
 
-  // ✅ SEMUA useState harus di dalam component
-  const [data,         setData]         = useState<DashboardData | null>(null);
-  const [loading,      setLoading]      = useState<boolean>(true);
-  const [error,        setError]        = useState<string | null>(null);
-  const [tahunFilter,  setTahunFilter]  = useState<number>(new Date().getFullYear());
+  const [data,             setData]             = useState<DashboardData | null>(null);
+  const [loading,          setLoading]          = useState<boolean>(true);
+  const [error,            setError]            = useState<string | null>(null);
+  const [tahunFilter,      setTahunFilter]      = useState<number>(new Date().getFullYear());
+  const [showKasusModal,   setShowKasusModal]   = useState<boolean>(false);
+  const [showActivityModal,setShowActivityModal] = useState<boolean>(false);
+  const [showImportModal,  setShowImportModal]  = useState<boolean>(false);
 
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+  const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
 
-  // ✅ handleReset juga harus di dalam component
-  const handleReset = () => {
-    setTahunFilter(new Date().getFullYear());
-  };
+  const handleReset = () => setTahunFilter(new Date().getFullYear());
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-
     const token = localStorage.getItem("token");
     fetch(`${API_BASE}/superadmin/dashboard?tahun=${tahunFilter}`, {
       headers: {
@@ -171,10 +169,7 @@ export default function SuperadminDashboard() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<DashboardData>;
       })
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      })
+      .then((json) => { setData(json); setLoading(false); })
       .catch((err) => {
         console.warn("API error, pakai mock data:", err.message);
         setData(MOCK);
@@ -202,10 +197,7 @@ export default function SuperadminDashboard() {
         <div className="user-filter-wrapper">
           <label className="user-filter-label">Tahun</label>
           <div className="user-filter-select">
-            <select
-              value={tahunFilter}
-              onChange={e => setTahunFilter(Number(e.target.value))}
-            >
+            <select value={tahunFilter} onChange={e => setTahunFilter(Number(e.target.value))}>
               {[2023, 2024, 2025, 2026].map(y => (
                 <option key={y} value={y}>{y}</option>
               ))}
@@ -215,7 +207,6 @@ export default function SuperadminDashboard() {
             </svg>
           </div>
         </div>
-
         <div className="user-filter-wrapper">
           <label className="user-filter-label">&nbsp;</label>
           <button className="user-filter-reset" onClick={handleReset}>
@@ -229,18 +220,14 @@ export default function SuperadminDashboard() {
 
       {/* ── DEV WARNING ── */}
       {error && (
-        <div className="sa-dev-warning">
-          <span>⚠️</span> {error}
-        </div>
+        <div className="sa-dev-warning"><span>⚠️</span> {error}</div>
       )}
 
       {/* ── STAT CARDS ── */}
       <div className="sa-stats-grid">
         {getStatCards(stats).map((s, i) => (
           <div key={i} className="card-v2 sa-stat-card">
-            <div className="sa-stat-icon" style={{ background: s.bg, color: s.color }}>
-              {s.icon}
-            </div>
+            <div className="sa-stat-icon" style={{ background: s.bg, color: s.color }}>{s.icon}</div>
             <div className="sa-stat-info">
               <div className="sa-stat-value" style={{ color: s.color }}>{s.value}</div>
               <div className="sa-stat-label">{s.label}</div>
@@ -251,13 +238,9 @@ export default function SuperadminDashboard() {
 
       {/* ── ROW 2: CHART + ROLE ── */}
       <div className="sa-row2">
-
-        {/* Line Chart */}
         <div className="card-v2">
           <div className="sa-card-header">
-            <span className="card-title" style={{ marginBottom: 0 }}>
-              Tren Kasus {tahunFilter}
-            </span>
+            <span className="card-title" style={{ marginBottom: 0 }}>Tren Kasus {tahunFilter}</span>
           </div>
           {barData.every(v => v === 0) ? (
             <div className="dashboard-empty">Tidak ada data tren untuk tahun {tahunFilter}</div>
@@ -270,29 +253,13 @@ export default function SuperadminDashboard() {
                 <CartesianGrid strokeDasharray="4 4" stroke="var(--border)" />
                 <XAxis dataKey="bulan" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
                 <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{
-                    background:   "var(--bg-card)",
-                    border:       "1px solid var(--border)",
-                    borderRadius: "8px",
-                    fontSize:     "0.85rem",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="jumlah"
-                  name="Jumlah Kasus"
-                  stroke="#6366f1"
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: "#6366f1" }}
-                  activeDot={{ r: 7 }}
-                />
+                <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "0.85rem" }} />
+                <Line type="monotone" dataKey="jumlah" name="Jumlah Kasus" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1" }} activeDot={{ r: 7 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        {/* User per Role */}
         <div className="card-v2">
           <div className="card-title">User per Role</div>
           {users_by_role.length === 0 && <p className="sa-empty">Tidak ada data</p>}
@@ -305,10 +272,7 @@ export default function SuperadminDashboard() {
                   <span className="sa-role-count">{fmt(r.jumlah)} ({pct}%)</span>
                 </div>
                 <div className="sa-progress-track">
-                  <div
-                    className="sa-progress-fill"
-                    style={{ width: `${pct}%`, background: ROLE_COLORS[i % ROLE_COLORS.length] }}
-                  />
+                  <div className="sa-progress-fill" style={{ width: `${pct}%`, background: ROLE_COLORS[i % ROLE_COLORS.length] }} />
                 </div>
               </div>
             );
@@ -319,96 +283,263 @@ export default function SuperadminDashboard() {
       {/* ── ROW 3: LOGS + IMPORTS ── */}
       <div className="sa-row3">
 
-        {/* Activity Log */}
-        <div className="card-v2">
-          <div className="card-title">Aktivitas Sistem Terbaru</div>
-          {recent_activity.length === 0 && <p className="sa-empty">Tidak ada aktivitas</p>}
-          <div className="sa-log-list">
-            {recent_activity.map((a, i) => (
-              <div key={i} className="sa-log-item">
-                <div className="sa-log-avatar">
-                  {(a.user ?? "?")[0].toUpperCase()}
-                </div>
-                <div className="sa-log-body">
-                  <div className="sa-log-title">
-                    <strong>{a.user}</strong> — {a.aktivitas}
-                    {a.modul && <span className="sa-badge">{a.modul}</span>}
-                  </div>
-                  {a.deskripsi && <div className="sa-log-desc">{a.deskripsi}</div>}
-                </div>
-                <div className="sa-log-time">{timeAgo(a.timestamp)}</div>
-              </div>
-            ))}
+        {/* ── ACTIVITY LOG ── */}
+        <div className="card-v2 warning-panel">
+          <div className="warning-header">
+            <h3 className="section-title">Aktivitas Sistem Terbaru</h3>
           </div>
+          <div className="warning-list">
+            {recent_activity.length === 0 ? (
+              <div style={{ color: '#64748b', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                📋 Belum ada aktivitas tercatat.
+              </div>
+            ) : (
+              recent_activity.slice(0, 3).map((a, i) => (
+                <div key={i} className="warning-box warning-yellow">
+                  <div>
+                    <div className="warning-title">{a.user}</div>
+                    <div className="warning-desc">
+                      {a.aktivitas}
+                      {a.modul && <span> · {a.modul}</span>}
+                      {a.deskripsi && <span> · {a.deskripsi}</span>}
+                      <span style={{ display: "block", marginTop: "2px", color: "#94a3b8", fontSize: "0.78rem" }}>
+                        {timeAgo(a.timestamp)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="warning-level">⚠️</div>
+                </div>
+              ))
+            )}
+          </div>
+          <button className="btn-detail" onClick={() => setShowActivityModal(true)}>
+            Lihat Detail
+          </button>
         </div>
 
-        {/* Kasus Audit Log */}
-        <div className="card-v2">
-          <div className="card-title">Audit Kasus (Log)</div>
-          {kasus_log.length === 0 && <p className="sa-empty">Tidak ada log</p>}
-          <div className="sa-log-list">
-            {kasus_log.map((k, i) => (
-              <div key={i} className="sa-log-item">
-                <div
-                  className="sa-aksi-badge"
-                  style={{
-                    background: (AKSI_COLOR[k.aksi] ?? "#64748b") + "20",
-                    color:      AKSI_COLOR[k.aksi] ?? "#64748b",
-                  }}
-                >
-                  {k.aksi}
-                </div>
-                <div className="sa-log-body">
-                  <div className="sa-log-title">
-                    <strong>{k.nama_penyakit}</strong>
-                    <span className="sa-badge">{k.kode_icd}</span>
-                  </div>
-                  <div className="sa-log-desc">
-                    {k.wilayah} · {k.faskes}
-                    {k.tanggal_kasus && (
-                      <span> · {new Date(k.tanggal_kasus).toLocaleDateString("id-ID")}</span>
-                    )}
-                  </div>
-                  <div className="sa-log-desc" style={{ color: "#94a3b8", fontSize: "0.78rem" }}>
-                    oleh {k.user}
-                  </div>
-                </div>
-                <div className="sa-log-time">{timeAgo(k.timestamp)}</div>
-              </div>
-            ))}
+        {/* ── KASUS AUDIT LOG ── */}
+        <div className="card-v2 warning-panel">
+          <div className="warning-header">
+            <h3 className="section-title">Audit Kasus (Log)</h3>
           </div>
+          <div className="warning-list">
+            {kasus_log.length === 0 ? (
+              <div style={{ color: '#64748b', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                📋 Belum ada aktivitas kasus tercatat.
+              </div>
+            ) : (
+              kasus_log.slice(0, 3).map((k, i) => (
+                <div key={i} className={`warning-box ${k.aksi === "Hapus" ? "warning-red" : "warning-yellow"}`}>
+                  <div>
+                    <div className="warning-title">{k.nama_penyakit}</div>
+                    <div className="warning-desc">
+                      {k.wilayah} · {k.faskes}
+                      {k.tanggal_kasus && (
+                        <span> · {new Date(k.tanggal_kasus).toLocaleDateString("id-ID")}</span>
+                      )}
+                      <span style={{ display: "block", marginTop: "2px", color: "#94a3b8", fontSize: "0.78rem" }}>
+                        oleh {k.user}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="warning-level">{k.aksi === "Hapus" ? "🚨" : "⚠️"}</div>
+                </div>
+              ))
+            )}
+          </div>
+          <button className="btn-detail" onClick={() => setShowKasusModal(true)}>
+            Lihat Detail
+          </button>
         </div>
 
-        {/* File Import */}
-        <div className="card-v2">
-          <div className="card-title">Import File Terbaru</div>
-          {recent_imports.length === 0 && <p className="sa-empty">Belum ada import</p>}
-          <div className="sa-import-list">
-            {recent_imports.map((f, i) => (
-              <div key={i} className="sa-import-item">
-                <div className="sa-import-icon">📁</div>
-                <div className="sa-import-body">
-                  <div className="sa-import-name">{f.nama_file}</div>
-                  <div className="sa-import-meta">{f.uploaded_by} · {fmt(f.jumlah_data)} data</div>
-                </div>
-                <div className="sa-import-right">
-                  <span
-                    className="sa-status-badge"
-                    style={{
-                      background: f.status === "sukses" ? "#dcfce7" : "#fef9c3",
-                      color:      f.status === "sukses" ? "#16a34a" : "#ca8a04",
-                    }}
-                  >
-                    {f.status}
-                  </span>
-                  <div className="sa-log-time">{timeAgo(f.tanggal_upload)}</div>
-                </div>
-              </div>
-            ))}
+        {/* ── FILE IMPORT ── */}
+        <div className="card-v2 warning-panel">
+          <div className="warning-header">
+            <h3 className="section-title">Import File Terbaru</h3>
           </div>
+          <div className="warning-list">
+            {recent_imports.length === 0 ? (
+              <div style={{ color: '#64748b', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                📁 Belum ada file yang diimport.
+              </div>
+            ) : (
+              recent_imports.slice(0, 3).map((f, i) => (
+                <div key={i} className={`warning-box ${f.status === "gagal" ? "warning-red" : "warning-yellow"}`}>
+                  <div>
+                    <div className="warning-title">{f.nama_file}</div>
+                    <div className="warning-desc">
+                      {f.uploaded_by} · {fmt(f.jumlah_data)} data
+                      <span style={{ display: "block", marginTop: "2px", color: "#94a3b8", fontSize: "0.78rem" }}>
+                        {timeAgo(f.tanggal_upload)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="warning-level">{f.status === "gagal" ? "🚨" : "⚠️"}</div>
+                </div>
+              ))
+            )}
+          </div>
+          <button className="btn-detail" onClick={() => setShowImportModal(true)}>
+            Lihat Detail
+          </button>
         </div>
 
-      </div>
+      </div> {/* tutup sa-row3 */}
+
+      {/* ── MODAL ACTIVITY LOG ── */}
+      {showActivityModal && (
+        <div className="modal-overlay" onClick={() => setShowActivityModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Detail Aktivitas Sistem</h2>
+              <button className="modal-close-btn" onClick={() => setShowActivityModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Daftar aktivitas sistem pada tahun <strong>{tahunFilter}</strong>:</p>
+              <table className="modal-table">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>User</th>
+                    <th>Aktivitas</th>
+                    <th>Modul</th>
+                    <th>Deskripsi</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent_activity.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b' }}>
+                        Tidak ada data aktivitas.
+                      </td>
+                    </tr>
+                  ) : (
+                    recent_activity.map((a, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td><strong>{a.user}</strong></td>
+                        <td>{a.aktivitas}</td>
+                        <td>{a.modul ?? "-"}</td>
+                        <td>{a.deskripsi ?? "-"}</td>
+                        <td style={{ color: "#94a3b8", fontSize: "0.85rem" }}>{timeAgo(a.timestamp)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL AUDIT KASUS ── */}
+      {showKasusModal && (
+        <div className="modal-overlay" onClick={() => setShowKasusModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Detail Audit Kasus (Log)</h2>
+              <button className="modal-close-btn" onClick={() => setShowKasusModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Daftar aktivitas kasus yang tercatat pada tahun <strong>{tahunFilter}</strong>:</p>
+              <table className="modal-table">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Penyakit</th>
+                    <th>Wilayah</th>
+                    <th>Faskes</th>
+                    <th>Tanggal Kasus</th>
+                    <th>Oleh</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {kasus_log.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b' }}>
+                        Tidak ada data audit kasus.
+                      </td>
+                    </tr>
+                  ) : (
+                    kasus_log.map((k, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td><strong>{k.nama_penyakit}</strong></td>
+                        <td>{k.wilayah}</td>
+                        <td>{k.faskes}</td>
+                        <td>{k.tanggal_kasus ? new Date(k.tanggal_kasus).toLocaleDateString("id-ID") : "-"}</td>
+                        <td>{k.user}</td>
+                        <td style={{ color: "#94a3b8", fontSize: "0.85rem" }}>{timeAgo(k.timestamp)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL FILE IMPORT ── */}
+      {showImportModal && (
+        <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Detail Import File</h2>
+              <button className="modal-close-btn" onClick={() => setShowImportModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>Daftar file yang diimport pada tahun <strong>{tahunFilter}</strong>:</p>
+              <table className="modal-table">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama File</th>
+                    <th>Diupload Oleh</th>
+                    <th>Jumlah Data</th>
+                    <th>Status</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent_imports.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b' }}>
+                        Tidak ada data import.
+                      </td>
+                    </tr>
+                  ) : (
+                    recent_imports.map((f, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td>{f.nama_file}</td>
+                        <td>{f.uploaded_by}</td>
+                        <td>{fmt(f.jumlah_data)} data</td>
+                        <td>
+                          <span style={{
+                            background:   f.status === "sukses" ? "#dcfce7" : "#fef9c3",
+                            color:        f.status === "sukses" ? "#16a34a" : "#ca8a04",
+                            padding:      "2px 10px",
+                            borderRadius: "999px",
+                            fontSize:     "0.8rem",
+                            fontWeight:   600,
+                          }}>
+                            {f.status}
+                          </span>
+                        </td>
+                        <td style={{ color: "#94a3b8", fontSize: "0.85rem" }}>{timeAgo(f.tanggal_upload)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

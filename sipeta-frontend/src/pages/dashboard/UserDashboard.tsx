@@ -23,7 +23,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 // ── TYPES ──────────────────────────────────────────────────────────────────────
 

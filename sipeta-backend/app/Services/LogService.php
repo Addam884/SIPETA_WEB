@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
-class ActivityLogService
+class LogService
 {
     /**
      * Catat aktivitas ke tabel activity_log.

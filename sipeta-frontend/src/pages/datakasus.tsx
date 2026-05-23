@@ -611,8 +611,9 @@ const DataKasus: React.FC = () => {
     }));
 
     try {
-      const { success, failed } = await bulkImportKasus(importRows, (done, total) =>
-        setImportProgress({ done, total })
+      const { success, failed } = await bulkImportKasus(
+        importRows, 
+        (done, total) => setImportProgress({ done, total })
       );
       // handleImportAll
       showToast(`Import selesai: ${success} berhasil${failed > 0 ? `, ${failed} gagal` : ''}`, failed > 0 ? 'warning' : 'success');

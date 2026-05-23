@@ -12,6 +12,7 @@ class Kasus extends Model
         'penyakit_id',
         'wilayah_id', 
         'faskes_id',
+        'file_import_id', 
         'tanggal_kasus',
         'umur',
         'jenis_kelamin',

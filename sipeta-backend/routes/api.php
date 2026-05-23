@@ -49,6 +49,7 @@ Route::get('kasus/{id}', [KasusController::class, 'show']);
 Route::get('faskes', [FaskesController::class, 'index']);
 
 
+
 //
 // ─── PROTECTED ROUTES (AUTH:SANCTUM) ─────────────────────────────────────
 //
@@ -67,8 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Kasus CRUD
     Route::post('/kasus', [KasusController::class, 'store']);
     Route::put('/kasus/{id}', [KasusController::class, 'update']);
-    Route::delete('/kasus/{id}', [KasusController::class, 'destroy']);
     Route::delete('/kasus/bulkDelete', [KasusController::class, 'bulkDelete']);
+    Route::delete('/kasus/{id}', [KasusController::class, 'destroy']);
     Route::post('/kasus/import', [KasusController::class, 'bulkImport']);
 
     // Master Data (CRUD butuh login)
@@ -83,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clustering/run', [GisController::class, 'runClustering']);
         Route::get('trend', [GisController::class, 'trend']);
         Route::get('epidemiologi', [GisController::class, 'epidemiologi']);
+        Route::get('export-excel', [GisController::class, 'exportExcel']);
     });
 
     // Logs
@@ -95,37 +97,37 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ─── DASHBOARD (PUBLIC) ───────────────────────────────────────────────────
     Route::prefix('dashboard')->group(function () {
-    Route::get('summary',      [UserDashboardController::class, 'statsSummary']);
-    Route::get('statistik',    [UserDashboardController::class, 'statistik']);
-    Route::get('tren-bulanan', [UserDashboardController::class, 'trenBulanan']);
-    Route::get('stats-faskes', [UserDashboardController::class, 'statsFaskes']);
-});
+        Route::get('summary', [UserDashboardController::class, 'statsSummary']);
+        Route::get('statistik', [UserDashboardController::class, 'statistik']);
+        Route::get('tren-bulanan', [UserDashboardController::class, 'trenBulanan']);
+        Route::get('stats-faskes', [UserDashboardController::class, 'statsFaskes']);
+    });
 
     Route::get('/superadmin/dashboard', [SuperadminController::class, 'dashboard']);
 
 
 
-// Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
-Route::prefix('dashboard-admin-controller')->group(function () {
-    Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
-    Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
-    Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
-    Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
-    Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
-});
+    // Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
+    Route::prefix('dashboard-admin-controller')->group(function () {
+        Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
+        Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
+        Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
+        Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
+        Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
+    });
 
 
 
 
 
-// Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
-Route::prefix('dashboard-admin-controller')->group(function () {
-    Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
-    Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
-    Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
-    Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
-    Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
-});
+    // Pastikan prefix ini sama persis dengan yang dipanggil di Axios (React)
+    Route::prefix('dashboard-admin-controller')->group(function () {
+        Route::get('/statistik', [AdminDashboardController::class, 'statistik']);
+        Route::get('/trend', [AdminDashboardController::class, 'trendPenyakit']); // 🌟 Diarahkan ke trendPenyakit
+        Route::get('/wilayah', [AdminDashboardController::class, 'distribusiWilayah']); // 🌟 Diarahkan ke distribusiWilayah
+        Route::get('/early-warning', [AdminDashboardController::class, 'earlyWarning']);
+        Route::get('/list-tahun', [AdminDashboardController::class, 'listTahun']);
+    });
 
 
 

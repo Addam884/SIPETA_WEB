@@ -230,31 +230,47 @@ export const useTrend = (penyakitId?: number | '', wilayahId?: number | '', tahu
 
 // ─── Hook: useEpidemiologi ────────────────────────────────────────────────────
 
+// useEpidemiologi - Update dengan parameter periode
 export const useEpidemiologi = (params: {
-  wilayah_id?: number | null;
-  penyakit_id?: number | '';
-  faskes_id?: number | null;
-  search?: string;
-  per_page?: number;
-  page?: number;
+    wilayah_id?: number | null;
+    penyakit_id?: number | '';
+    faskes_id?: number | null;
+    periode?: string;  // ← TAMBAHKAN
+    search?: string;
+    page?: number;
+    per_page?: number;
 }) => {
-  const [data, setData] = useState<PaginatedEpi | null>(null);
-  const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const clean = Object.fromEntries(
-        Object.entries(params).filter(([, v]) => v !== null && v !== '' && v !== undefined)
-      );
-      const res = await api.get('/gis/epidemiologi', { params: clean });
-      setData(res.data);
-    } catch { /* silent */ }
-    finally { setLoading(false); }
-  }, [JSON.stringify(params)]);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const queryParams = new URLSearchParams();
+            if (params.wilayah_id) queryParams.append('wilayah_id', String(params.wilayah_id));
+            if (params.penyakit_id) queryParams.append('penyakit_id', String(params.penyakit_id));
+            if (params.faskes_id) queryParams.append('faskes_id', String(params.faskes_id));
+            if (params.periode) queryParams.append('periode', params.periode); // ← TAMBAHKAN
+            if (params.search) queryParams.append('search', params.search);
+            if (params.page) queryParams.append('page', String(params.page));
+            if (params.per_page) queryParams.append('per_page', String(params.per_page));
+            
+            const response = await api.get(`/gis/epidemiologi?${queryParams.toString()}`);
+            setData(response.data);
+        } catch (err) {
+            setError('Gagal memuat data epidemiologi');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [params.wilayah_id, params.penyakit_id, params.faskes_id, params.periode, params.search, params.page, params.per_page]);
 
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    return { data, loading, error, refetch: fetchData };
 };
 
 // ─── Clustering helpers ───────────────────────────────────────────────────────

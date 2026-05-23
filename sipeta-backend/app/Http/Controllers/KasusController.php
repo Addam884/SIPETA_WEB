@@ -227,6 +227,7 @@ class KasusController extends Controller
 
         $rows = $request->input('rows', []);
         $userId = $request->user()?->id;
+        $fileName = $request->input('nama_file', 'unknown_' . time() . '.xlsx');
 
         // ✅ Proses auto-assign faskes_id untuk setiap row
         $processedRows = array_map(function ($row) {

@@ -1,40 +1,45 @@
 pipeline {
     agent any
 
-    environment {
-        STACK_NAME = "sipeta"
-        PROJECT_DIR = "/var/jenkins_home/workspace/SIPETA-CICD"
-    }
-
     stages {
 
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/Addam884/SIPETA_WEB'
-            }
-        }
-
-        stage('Build Backend Image') {
+        stage('Pull Latest Code') {
             steps {
                 sh '''
-                docker build -t sipeta-backend:latest ./sipeta-backend
+                cd /home/Kelompok8/SIPETA_WEB
+
+                git pull origin main
                 '''
             }
         }
 
-        stage('Build Frontend Image') {
+        stage('Build Backend') {
             steps {
                 sh '''
-                docker build -t sipeta-frontend:latest ./sipeta-frontend
+                cd /home/Kelompok8/SIPETA_WEB
+
+                docker build --no-cache -t sipeta-backend:latest ./sipeta-backend
                 '''
             }
         }
 
-        stage('Deploy Docker Swarm') {
+        stage('Build Frontend') {
             steps {
                 sh '''
+                cd /home/Kelompok8/SIPETA_WEB
+
+                docker build --no-cache -t sipeta-frontend:latest ./sipeta-frontend
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                cd /home/Kelompok8/SIPETA_WEB
+
                 docker stack deploy -c docker-compose.yml sipeta
+
                 docker service update --force sipeta_backend
                 docker service update --force sipeta_frontend
                 '''
@@ -48,7 +53,6 @@ pipeline {
                 '''
             }
         }
-    }
 
     post {
 

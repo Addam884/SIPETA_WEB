@@ -35,6 +35,8 @@ pipeline {
             steps {
                 sh '''
                 docker stack deploy -c docker-compose.yml sipeta
+                docker service update --force sipeta_backend
+                docker service update --force sipeta_frontend
                 '''
             }
         }

@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         STACK_NAME = "sipeta"
-        PROJECT_DIR = "/var/jenkins_home/workspace/SIPETA"
+        PROJECT_DIR = "/var/jenkins_home/workspace/SIPETA-CICD"
     }
 
     stages {

@@ -13,12 +13,12 @@ services:
 
   backend:
     build:
-      context: ./sipeta-frontend
+      context: ./sipeta-backend
     image: sipeta-backend:latest
     ports:
       - "8000:8000"
     volumes:
-      - /home/Kelompok8/SIPETA_WEB/.env:/var/www/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
+      - /var/jenkins_home/workspace/SIPETA-CICD/sipeta-backend/.env:/var/www/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
     networks:
       - sipeta-network
     deploy:
@@ -44,7 +44,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - /home/Kelompok8/SIPETA_WEB/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /var/jenkins_home/workspace/SIPETA-CICD/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - sipeta-network
     deploy:
@@ -55,7 +55,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /home/Kelompok8/SIPETA_WEB/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /var/jenkins_home/workspace/SIPETA-CICD/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - sipeta-network
     deploy:

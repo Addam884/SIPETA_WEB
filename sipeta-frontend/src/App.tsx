@@ -17,6 +17,7 @@ import Datakasus from "./pages/datakasus";
 import GIS from "./pages/GIS";
 import Settings from "./pages/Settings";
 import Logs from "./pages/Logs";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* ================= USER ================= */}
       <Route

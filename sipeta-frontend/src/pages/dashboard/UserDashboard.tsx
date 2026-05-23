@@ -12,7 +12,18 @@ const miniChartPaths: string[] = [
   "M0 20 Q18 24, 30 18 T55 22 T75 16 T100 20",
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
 
 // ── TYPES ──────────────────────────────────────────────────────────────────────
 
@@ -68,7 +79,7 @@ export default function UserDashboard() {
   const [statsPenyakit, setStatsPenyakit] = useState<PenyakitStat[]>([]);
   const [trenBulanan,   setTrenBulanan]   = useState<TrenBulanan[]>([]);
   const [statsFaskes,   setStatsFaskes]   = useState<FaskesStat[]>([]);
-  const [,       setSummary]       = useState<Summary | null>(null);
+  const [, setSummary]       = useState<Summary | null>(null);
   const [loading,       setLoading]       = useState<boolean>(true);
   const [error,         setError]         = useState<string | null>(null);
 
@@ -139,6 +150,14 @@ export default function UserDashboard() {
 
   const maxBar = Math.max(...trenBulanan.map(d => d.jumlah_kasus), 1);
 
+  const handleReset = () => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
+    setTahun(currentYear);
+    setBulan(`${currentYear}-${currentMonth}`);
+    setPenyakitId("");
+  };
+
   if (loading) {
     return (
       <div className="user-dashboard">
@@ -180,18 +199,14 @@ export default function UserDashboard() {
         <div className="user-filter-wrapper">
           <label className="user-filter-label">Bulan</label>
           <div className="user-filter-select">
-            <select
-              value={bulan}
-              onChange={e => setBulan(e.target.value)}
-            >
+            <select value={bulan} onChange={e => setBulan(e.target.value)}>
               {Array.from({ length: 12 }, (_, i) => {
                 const m      = String(i + 1).padStart(2, "0");
-                const thnVal = bulan.split("-")[0]; // ← ambil tahun dari bulan yang aktif
-                const label  = new Date(`${thnVal}-${m}-01`).toLocaleString("id-ID", { month: "long" });
+                const thnVal = bulan.split("-")[0];
+                const label  = new Date(`${thnVal}-${m}-01`)
+                  .toLocaleString("id-ID", { month: "long" });
                 return (
-                  <option key={m} value={`${thnVal}-${m}`}>
-                    {label}
-                  </option>
+                  <option key={m} value={`${thnVal}-${m}`}>{label}</option>
                 );
               })}
             </select>
@@ -215,6 +230,17 @@ export default function UserDashboard() {
               <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
+        </div>
+
+        {/* Tombol Reset */}
+        <div className="user-filter-wrapper">
+          <label className="user-filter-label">&nbsp;</label>
+          <button className="user-filter-reset" onClick={handleReset}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1v4h4M13 7A6 6 0 1 1 7 1a6 6 0 0 1 4.243 1.757L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Reset
+          </button>
         </div>
 
       </div>
@@ -324,7 +350,7 @@ export default function UserDashboard() {
         {/* ── RIGHT ── */}
         <div className="user-right-area">
 
-          {/* BAR CHART */}
+          {/* LINE CHART TREN BULANAN */}
           <div className="card-v2">
             <div className="user-chart-header">
               <span className="card-title" style={{ marginBottom: 0 }}>
@@ -334,29 +360,39 @@ export default function UserDashboard() {
             {trenBulanan.every(d => d.jumlah_kasus === 0) ? (
               <div className="dashboard-empty">Tidak ada data tren untuk tahun {tahun}</div>
             ) : (
-              <div className="user-bar-chart-wrapper">
-                <div className="user-y-axis">
-                  {[4, 3, 2, 1, 0].map(v => (
-                    <span key={v} className="user-y-label">
-                      {Math.round((maxBar / 4) * v)}
-                    </span>
-                  ))}
-                </div>
-                <div className="user-bars-container">
-                  {trenBulanan.map((d, i) => (
-                    <div key={i} className="user-bar-item">
-                      <div className="user-bar-inner">
-                        <div
-                          className="user-bar"
-                          style={{ height: `${(d.jumlah_kasus / maxBar) * 100}%` }}
-                          title={`${d.bulan}: ${d.jumlah_kasus} kasus`}
-                        />
-                      </div>
-                      <span className="user-bar-label">{d.bulan}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart
+                  data={trenBulanan}
+                  margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="4 4" stroke="var(--border)" />
+                  <XAxis
+                    dataKey="bulan"
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background:   "var(--bg-card)",
+                      border:       "1px solid var(--border)",
+                      borderRadius: "8px",
+                      fontSize:     "0.85rem",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="jumlah_kasus"
+                    name="Jumlah Kasus"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    dot={{ r: 4, fill: "#3b82f6" }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             )}
           </div>
 

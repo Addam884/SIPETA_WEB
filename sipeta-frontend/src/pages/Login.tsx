@@ -150,9 +150,9 @@ function Login() {
                 <span>Ingat saya</span>
               </label>
 
-              <a href="#" className="form-forgot">
+              <Link to="/forgot-password" className="form-forgot">
                 Lupa password?
-              </a>
+              </Link>
 
             </div>
 

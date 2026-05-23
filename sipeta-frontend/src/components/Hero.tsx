@@ -1,5 +1,5 @@
 import Lottie from "lottie-react";
-import virusAnimation from "../assets/virus.json";
+import virusAnimation from "../assets/Virus.json";
 
 type HeroProps = {
   scrollToSection: (id: string) => void;

@@ -148,8 +148,6 @@ export default function UserDashboard() {
       .finally(() => setLoading(false));
   }, [tahun, bulan, penyakitId]);
 
-  const maxBar = Math.max(...trenBulanan.map(d => d.jumlah_kasus), 1);
-
   const handleReset = () => {
     const currentYear = new Date().getFullYear();
     const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");

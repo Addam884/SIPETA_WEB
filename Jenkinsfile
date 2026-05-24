@@ -2,23 +2,31 @@ pipeline {
     agent any
 
     environment {
-        STACK_NAME = "sipeta"
-        PROJECT_DIR = "/var/jenkins_home/workspace/SIPETA"
+        PROJECT_DIR = "/home/Kelompok8/SIPETA_WEB"
     }
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Pull Latest Code') {
             steps {
-                git branch: 'main',
-                url: 'https://github.com/Addam884/SIPETA_WEB'
+                sh '''
+                cd $PROJECT_DIR
+
+                git reset --hard
+                git clean -fd
+                git pull origin main
+                '''
             }
         }
 
         stage('Build Backend Image') {
             steps {
                 sh '''
-                docker build -t sipeta-backend:latest ./sipeta-backend
+                cd $PROJECT_DIR
+
+                docker build --no-cache \
+                -t sipeta-backend \
+                ./sipeta-backend
                 '''
             }
         }
@@ -26,15 +34,38 @@ pipeline {
         stage('Build Frontend Image') {
             steps {
                 sh '''
-                docker build -t sipeta-frontend:latest ./sipeta-frontend
+                cd $PROJECT_DIR
+
+                docker build --no-cache \
+                -t sipeta-frontend \
+                ./sipeta-frontend
                 '''
             }
         }
 
-        stage('Deploy Docker Swarm') {
+        stage('Deploy Stack') {
             steps {
                 sh '''
+                cd $PROJECT_DIR
+
                 docker stack deploy -c docker-compose.yml sipeta
+                '''
+            }
+        }
+
+        stage('Force Update Services') {
+            steps {
+                sh '''
+                docker service update --force sipeta_backend
+                docker service update --force sipeta_frontend
+                '''
+            }
+        }
+
+        stage('Cleanup Old Images') {
+            steps {
+                sh '''
+                docker image prune -af
                 '''
             }
         }
@@ -43,6 +74,7 @@ pipeline {
             steps {
                 sh '''
                 docker service ls
+                docker ps
                 '''
             }
         }

@@ -86,11 +86,6 @@ function timeAgo(ts: string | null | undefined): string {
   return `${Math.floor(diff / 86400)}h lalu`;
 }
 
-const AKSI_COLOR: Record<string, string> = {
-  Tambah: "#22c55e",
-  Edit:   "#f59e0b",
-  Hapus:  "#ef4444",
-};
 
 const ROLE_COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b"];
 
@@ -150,7 +145,7 @@ export default function SuperadminDashboard() {
   const [showActivityModal,setShowActivityModal] = useState<boolean>(false);
   const [showImportModal,  setShowImportModal]  = useState<boolean>(false);
 
-  const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
+  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
   const handleReset = () => setTahunFilter(new Date().getFullYear());
 

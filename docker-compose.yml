@@ -15,12 +15,10 @@ services:
     build:
       context: ./sipeta-backend
     image: sipeta-backend:latest
-    secrets:
-      - sipeta_env
     ports:
       - "8000:8000"
-    volumes:
-      - /home/Kelompok8/SIPETA_WEB/sipeta-backend/.env:/var/www/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
+    env_file:
+      - ./sipeta-backend/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
     networks:
       - sipeta-network
     deploy:
@@ -104,7 +102,3 @@ networks:
 volumes:
   sipeta_db_data:
     driver: local  # 🔥 Memaksa Swarm mengunci data di harddisk lokal VPS manager
-
- secrets:
-    sipeta_env:
-      external: true

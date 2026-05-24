@@ -13,12 +13,12 @@ services:
 
   backend:
     build:
-      context: ./sipeta-frontend
+      context: ./sipeta-backend
     image: sipeta-backend:latest
     ports:
       - "8000:8000"
     volumes:
-      - /home/Kelompok8/SIPETA_WEB/.env:/var/www/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
+      - /home/Kelompok8/SIPETA_WEB/sipeta-backend/.env:/var/www/.env  # 🔥 Gunakan bind mount absolut agar Swarm tidak bingung
     networks:
       - sipeta-network
     deploy:

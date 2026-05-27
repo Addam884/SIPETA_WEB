@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Faskes extends Model
 {
+    // Mengarah ke nama tabel fisik di PostgreSQL Anda
     protected $table = 'fasilitas_kesehatan';
+    
+    // Matikan timestamps bawaan Laravel (created_at/updated_at)
+    public $timestamps = false;
     
     protected $fillable = [
         'nama_faskes',
@@ -14,15 +18,21 @@ class Faskes extends Model
         'geom',
     ];
 
-    // Relasi ke Wilayah
+    /**
+     * Relasi ke model Wilayah secara eksplisit
+     */
     public function wilayah()
     {
-        return $this->belongsTo(Wilayah::class);
+        // Parameter 2: foreign_key di tabel fasilitas_kesehatan
+        // Parameter 3: owner_key / primary_key di tabel wilayah
+        return $this->belongsTo(Wilayah::class, 'wilayah_id', 'id');
     }
 
-    // Relasi ke Kasus
+    /**
+     * Relasi ke model Kasus
+     */
     public function kasus()
     {
-        return $this->hasMany(Kasus::class);
+        return $this->hasMany(Kasus::class, 'faskes_id', 'id');
     }
 }

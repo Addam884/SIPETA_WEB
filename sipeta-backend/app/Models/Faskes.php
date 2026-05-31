@@ -3,10 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Faskes extends Model
 {
+    use HasFactory;
     protected $table = 'fasilitas_kesehatan';
+
+    public $timestamps = false;
+
     
     protected $fillable = [
         'nama_faskes',

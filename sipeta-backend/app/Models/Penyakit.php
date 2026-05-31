@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Penyakit extends Model
 {
-    // Mengarahkan ke nama tabel yang ada di pgAdmin Anda
+    use HasFactory;
     protected $table = 'penyakit';
 
-    // NONAKTIFKAN TIMESTAMPS karena kolom created_at & updated_at tidak ada di tabel pgAdmin
     public $timestamps = false;
 
-    // Daftarkan semua kolom agar bisa diisi secara Mass Assignment (Penyakit::create)
     protected $fillable = [
         'nama_penyakit',
         'kode_icd',

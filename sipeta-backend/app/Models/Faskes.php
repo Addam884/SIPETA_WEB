@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Faskes extends Model
 {
-    // Mengarah ke nama tabel fisik di PostgreSQL Anda
+    use HasFactory;
     protected $table = 'fasilitas_kesehatan';
+
+    public $timestamps = false;
+
     
     // Matikan timestamps bawaan Laravel (created_at/updated_at)
     public $timestamps = false;

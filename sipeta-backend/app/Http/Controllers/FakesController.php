@@ -21,9 +21,10 @@ class FakesController extends Controller
                     'id',
                     'nama_faskes',
                     'wilayah_id',
-                    DB::raw("CASE WHEN geom IS NOT NULL THEN ST_Y(geom) ELSE -8.1723 END as latitude"),
-                    DB::raw("CASE WHEN geom IS NOT NULL THEN ST_X(geom) ELSE 113.7001 END as longitude")
-                );
+                    DB::raw("ST_Y(geom) as latitude"),
+                    DB::raw("ST_X(geom) as longitude")
+                )
+                ->whereNotNull('geom'); // 🔥 INI KUNCINYA
 
             if ($request->filled('wilayah_id')) {
                 $query->where('wilayah_id', $request->wilayah_id);

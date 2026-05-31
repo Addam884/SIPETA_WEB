@@ -28,7 +28,7 @@ export default function Wilayah() {
   const [editId, setEditId] = useState<number | null>(null);
   const [latitude, setLatitude] = useState(-8.1723);
   const [longitude, setLongitude] = useState(113.7001);
-  
+
   // State bantu untuk menampilkan teks alamat di UI saja
   const [alamatTampilan, setAlamatTampilan] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -103,33 +103,69 @@ export default function Wilayah() {
      SUBMIT
   ========================= */
   const handleSubmit = async () => {
+    // VALIDASI FRONTEND
+    if (!form.nama_wilayah) {
+      alert("Nama wilayah wajib diisi");
+      return;
+    }
+
+    // CEK DUPLIKAT (hanya saat tambah, bukan edit)
+    const isDuplicate = data.some(
+      (item) =>
+        item.nama_wilayah.toLowerCase() ===
+        form.nama_wilayah.toLowerCase()
+    );
+
+    if (isDuplicate && !editId) {
+      alert("Wilayah sudah ada!");
+      return;
+    }
+
     try {
       const payload = {
         nama_wilayah: form.nama_wilayah,
-        level: form.level,
-        populasi_jumlah: form.populasi_jumlah,
+        level: form.level || null,
+        populasi_jumlah: form.populasi_jumlah
+          ? parseInt(form.populasi_jumlah)
+          : null,
         latitude,
         longitude,
       };
 
       if (editId) {
         await api.put(`/wilayah/${editId}`, payload);
+        alert("Data berhasil diupdate");
       } else {
         await api.post("/wilayah", payload);
+        alert("Data berhasil ditambahkan");
       }
 
-      // RESET STATE
+      // RESET
       setShowModal(false);
       setEditId(null);
       setAlamatTampilan("");
-              setForm({ nama_wilayah: "", level: "", populasi_jumlah: "" });
-              setLatitude(-8.1723);
-              setLongitude(113.7001);
-
+      setForm({
+        nama_wilayah: "",
+        level: "",
+        populasi_jumlah: "",
+      });
+      setLatitude(-8.1723);
+      setLongitude(113.7001);
 
       getData();
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("ERROR:", error.response?.data);
+
+      // HANDLE ERROR BACKEND (INI PENTING)
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        const firstError = Object.values(errors)[0];
+        alert(firstError);
+      } else {
+        alert("Terjadi kesalahan saat menyimpan data");
+      }
     }
   };
 
@@ -158,7 +194,7 @@ export default function Wilayah() {
       level: item.level || "",
       populasi_jumlah: item.populasi_jumlah !== undefined && item.populasi_jumlah !== null ? String(item.populasi_jumlah) : "",
     });
-    
+
     // Jika data lama memiliki koordinat bawaan, pasang ke map
     if (item.latitude && item.longitude) {
       setLatitude(parseFloat(item.latitude));
@@ -260,7 +296,7 @@ export default function Wilayah() {
       {showModal && (
         <div className="dm-modal-overlay">
           <div className="dm-modal" style={{ position: "relative", maxWidth: "900px", width: "100%" }}>
-            
+
             {/* TOMBOL SILANG DI POJOK KANAN ATAS MODAL */}
             <button
               onClick={() => setShowModal(false)}
@@ -288,10 +324,10 @@ export default function Wilayah() {
 
             {/* GRID */}
             <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "24px", alignItems: "start" }}>
-              
+
               {/* LEFT PANEL */}
               <div style={{ background: "#ffffff", borderRadius: "20px", padding: "24px", border: "1px solid #e5e7eb", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
-                
+
                 {/* NAMA WILAYAH */}
                 <div style={{ marginBottom: "20px" }}>
                   <label style={{ display: "block", marginBottom: "8px", fontWeight: 600, fontSize: "14px" }}>

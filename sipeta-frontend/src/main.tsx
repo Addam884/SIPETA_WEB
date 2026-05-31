@@ -5,7 +5,6 @@ import App from "./App.tsx";
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext"; 
 import { Toaster } from "sonner";
-import 'leaflet/dist/leaflet.css';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

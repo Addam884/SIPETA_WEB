@@ -13,7 +13,7 @@ function About() {
 
           <p className="about-desc">
             SIPETA memanfaatkan teknologi Geographic Information System (GIS) terkini untuk
-            memvisualisasikan persebaran penyakit secara interaktif, membantu dinas kesehatan Jember
+            memvisualisasikan persebaran penyakit secara interaktif, membantu Dinas kesehatan Jember
             dalam merespons wabah lebih cepat dan akurat.
           </p>
 

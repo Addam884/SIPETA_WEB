@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KasusController;
 use App\Http\Controllers\PenyakitController;
 use App\Http\Controllers\WilayahController;
-use App\Http\Controllers\FaskesController;
+
+use App\Http\Controllers\FakesController;
+
 use App\Http\Controllers\GisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingsController;
@@ -46,7 +48,7 @@ Route::prefix('gis')->group(function () {
 // Public read-only data
 Route::get('kasus', [KasusController::class, 'index']);
 Route::get('kasus/{id}', [KasusController::class, 'show']);
-Route::get('faskes', [FaskesController::class, 'index']);
+Route::get('faskes', [FakesController::class, 'index']);
 
 
 
@@ -75,7 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Master Data (CRUD butuh login)
     Route::apiResource('penyakit', PenyakitController::class);
     Route::apiResource('wilayah', WilayahController::class);
-    Route::apiResource('faskes', FaskesController::class);
+Route::apiResource('faskes', FakesController::class);
+
 
     // GIS PRIVATE (yang sensitif / aksi)
     Route::prefix('gis')->group(function () {

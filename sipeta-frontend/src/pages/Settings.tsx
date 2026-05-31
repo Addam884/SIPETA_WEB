@@ -100,7 +100,6 @@ function Settings() {
     try {
       const formData = new FormData();
       formData.append("name", profileForm.name);
-      formData.append("email", profileForm.email);
       formData.append("phone", profileForm.phone);
 
       await api.post("/profile", formData);
@@ -109,8 +108,14 @@ function Settings() {
       setIsEditingProfile(false);
 
       toast.success("Profil berhasil diperbarui");
-    } catch {
-      toast.error("Gagal update profile");
+    } catch (err: any) {
+      const errors = err.response?.data?.errors;
+
+      if (errors?.phone) {
+        toast.error("Nomor sudah digunakan");
+      } else {
+        toast.error("Gagal update profile");
+      }
     }
   }
 
@@ -243,9 +248,10 @@ function Settings() {
               type="tel"
               value={profileForm.phone}
               disabled={!isEditingProfile}
-              onChange={(e) =>
-                setProfileForm((p) => ({ ...p, phone: e.target.value }))
-              }
+              onChange={(e) => {
+                const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                setProfileForm((p) => ({ ...p, phone: onlyNumbers }));
+              }}
             />
           </div>
 
@@ -258,10 +264,7 @@ function Settings() {
               className="settings-input"
               type="email"
               value={profileForm.email}
-              disabled={!isEditingProfile}
-              onChange={(e) =>
-                setProfileForm((p) => ({ ...p, email: e.target.value }))
-              }
+              disabled
             />
           </div>
         </div>

@@ -30,12 +30,16 @@ class SettingsController extends Controller
     {
         $user = $request->user();
 
-        $request->validate([
-            'name' => 'sometimes|required',
-            'email' => 'sometimes|required|email',
-            'phone' => 'nullable|max:20',
-            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
+            $request->validate([
+                'name' => 'sometimes|required',
+                'phone' => [
+                    'nullable',
+                    'max:20',
+                    'regex:/^[0-9]+$/',
+                    'unique:users,phone,' . $user->id
+                ],
+                'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            ]);
 
         // avatar
         if ($request->hasFile('avatar')) {
@@ -57,7 +61,7 @@ class SettingsController extends Controller
             $user->avatar = $path;
         }
 
-        $user->update($request->only(['name', 'email', 'phone']));
+        $user->update($request->only(['name', 'phone']));
         $user->save();
 
         return response()->json([

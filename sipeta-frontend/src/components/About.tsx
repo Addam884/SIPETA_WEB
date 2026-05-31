@@ -1,5 +1,6 @@
 function About() {
   return (
+    <div className="landing">
     <section className="about-section">
       <div className="about-container">
 
@@ -45,6 +46,7 @@ function About() {
 
       </div>
     </section>
+    </div>
   );
 }
 

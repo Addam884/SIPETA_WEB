@@ -4,10 +4,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Wilayah extends Model
 {
     protected $table = 'wilayah';
+    use HasFactory;
 
     public $timestamps = false;
 

@@ -87,6 +87,7 @@ function MapSection() {
   const zones = geojson?.features ?? [];
 
   return (
+    <div className="landing">
     <section className="map-section">
 
       {/* HEADER */}
@@ -261,6 +262,7 @@ function MapSection() {
 
       </div>
     </section>
+    </div>
   );
 }
 

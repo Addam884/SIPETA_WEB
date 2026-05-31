@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/Penyakit.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +19,9 @@ class Penyakit extends Model
         'threshold_ews'
     ];
 
+    /**
+     * Relasi ke tabel Kasus (One to Many)
+     */
     public function kasus()
     {
         return $this->hasMany(Kasus::class);

@@ -13,21 +13,30 @@ class Faskes extends Model
     public $timestamps = false;
 
     
+    // Matikan timestamps bawaan Laravel (created_at/updated_at)
+    public $timestamps = false;
+    
     protected $fillable = [
         'nama_faskes',
         'wilayah_id',
         'geom',
     ];
 
-    // Relasi ke Wilayah
+    /**
+     * Relasi ke model Wilayah secara eksplisit
+     */
     public function wilayah()
     {
-        return $this->belongsTo(Wilayah::class);
+        // Parameter 2: foreign_key di tabel fasilitas_kesehatan
+        // Parameter 3: owner_key / primary_key di tabel wilayah
+        return $this->belongsTo(Wilayah::class, 'wilayah_id', 'id');
     }
 
-    // Relasi ke Kasus
+    /**
+     * Relasi ke model Kasus
+     */
     public function kasus()
     {
-        return $this->hasMany(Kasus::class);
+        return $this->hasMany(Kasus::class, 'faskes_id', 'id');
     }
 }

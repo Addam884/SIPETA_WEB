@@ -3,14 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Populasi extends Model
 {
     protected $table = 'populasi';
-
-    protected $primaryKey = 'id';
-
-    public $timestamps = false; // karena di tabel tidak ada created_at & updated_at
+    public $timestamps = false; 
 
     protected $fillable = [
         'wilayah_id',
@@ -18,8 +16,8 @@ class Populasi extends Model
         'jumlah',
     ];
 
-    // Relasi ke wilayah
-    public function wilayah()
+    // Menggunakan type hinting untuk kejelasan
+    public function wilayah(): BelongsTo
     {
         return $this->belongsTo(Wilayah::class, 'wilayah_id');
     }

@@ -11,10 +11,6 @@ class Faskes extends Model
     protected $table = 'fasilitas_kesehatan';
 
     public $timestamps = false;
-
-    
-    // Matikan timestamps bawaan Laravel (created_at/updated_at)
-    public $timestamps = false;
     
     protected $fillable = [
         'nama_faskes',

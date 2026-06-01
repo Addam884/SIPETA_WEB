@@ -145,7 +145,7 @@ export default function SuperadminDashboard() {
   const [showActivityModal,setShowActivityModal] = useState<boolean>(false);
   const [showImportModal,  setShowImportModal]  = useState<boolean>(false);
 
-  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+  const API_BASE = import.meta.env.VITE_API_URL || "http://103.157.27.220:8000/api";
 
   const handleReset = () => setTahunFilter(new Date().getFullYear());
 

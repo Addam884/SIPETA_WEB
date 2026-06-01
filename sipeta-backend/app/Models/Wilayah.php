@@ -16,8 +16,13 @@ class Wilayah extends Model
     protected $fillable = [
         'nama_wilayah',
         'level',
-        'parent_id'
+        'geom'
     ];
+
+    public function batasWilayah()
+    {
+        return $this->belongsTo(BatasWilayah::class, 'batas_wilayah_gid', 'gid');
+    }
 
     public function kasus()
     {

@@ -168,7 +168,7 @@ function Settings() {
               preview
                 ? preview
                 : avatar
-                  ? `http://103.157.27.220:8000/storage/${avatar}`
+                  ? `http://127.0.0.1:8000/storage/${avatar}`
                   : "https://i.pravatar.cc/96"
             }
             alt="Foto profil"

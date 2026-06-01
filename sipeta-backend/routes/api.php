@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Master Data (CRUD butuh login)
     Route::apiResource('penyakit', PenyakitController::class);
+    Route::get('/wilayah/check-geom', [WilayahController::class, 'checkGeom']);
     Route::apiResource('wilayah', WilayahController::class);
 Route::apiResource('faskes', FakesController::class);
 

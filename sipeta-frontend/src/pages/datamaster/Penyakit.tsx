@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import Toast from "../../components/Toast";
+import ConfirmDialog from "../../components/Dialog";
 import "../../styles/DataMaster.css";
+import "../../styles/Toast.css";
 
 /* ==========================================================================
    TYPE INTERFACE (Sesuai dengan skema pgAdmin Anda)
@@ -20,12 +23,37 @@ export default function Penyakit() {
   const [data, setData] = useState<Penyakit[]>([]);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [saving, setSaving] = useState(false);
   
   // Kontrol Modal & Edit ID
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
 
-  // State Form Input Penyakit (Menggunakan threshold_ews agar sinkron dengan database)
+  // Toast state
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'warning' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
+
+  // Dialog state
+  interface ConfirmState {
+    open: boolean;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'primary';
+  }
+  const [confirm, setConfirm] = useState<ConfirmState>({ open: false, message: '', onConfirm: () => { } });
+
+  const showToast = (message: string, type: 'success' | 'warning' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+  };
+
+  const showConfirm = (message: string, onConfirm: () => void, variant: 'danger' | 'primary' = 'danger') => {
+    setConfirm({ open: true, message, onConfirm, variant });
+  };
+
+  // State Form Input Penyakit
   const [form, setForm] = useState({
     kode_icd: "",
     nama_penyakit: "",
@@ -42,6 +70,7 @@ export default function Penyakit() {
       setData(response.data);
     } catch (error) {
       console.error("Gagal mengambil data penyakit:", error);
+      showToast("Gagal memuat data penyakit", "error");
     }
   };
 
@@ -50,7 +79,7 @@ export default function Penyakit() {
   }, []);
 
   /* ==========================================================================
-     SEARCH FILTERING (Berdasarkan Nama Penyakit)
+     SEARCH FILTERING
      ========================================================================== */
   const filteredData = data.filter((item) =>
     item.nama_penyakit.toLowerCase().includes(search.toLowerCase())
@@ -60,14 +89,14 @@ export default function Penyakit() {
      API INTEGRATION (CREATE & UPDATE - SUBMIT)
      ========================================================================== */
   const handleSubmit = async () => {
-    // Validasi dasar agar input wajib tidak kosong
     if (!form.nama_penyakit) {
-      alert("Nama Penyakit wajib diisi!");
+      showToast("Nama Penyakit wajib diisi!", "warning");
       return;
     }
 
+    setSaving(true);
+
     try {
-      // Menyusun data payload tepat seperti kriteria backend Laravel Anda
       const payload = {
         nama_penyakit: form.nama_penyakit,
         kode_icd: form.kode_icd ? form.kode_icd.toUpperCase().trim() : null,
@@ -76,14 +105,13 @@ export default function Penyakit() {
       };
 
       if (editId) {
-        // Jalankan proses update data (PUT)
         await api.put(`/penyakit/${editId}`, payload);
+        showToast("Data penyakit berhasil diupdate", "success");
       } else {
-        // Jalankan proses tambah data baru (POST)
         await api.post("/penyakit", payload);
+        showToast("Data penyakit berhasil ditambahkan", "success");
       }
 
-      // Reset & Tutup Modal setelah data masuk ke PostgreSQL
       setShowModal(false);
       setEditId(null);
       setForm({
@@ -93,28 +121,37 @@ export default function Penyakit() {
         threshold_ews: 100,
       });
 
-      // Refresh isi tabel secara dinamis
       getData();
-      alert("Data penyakit berhasil disimpan!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gagal menyimpan data penyakit:", error);
-      alert("Terjadi masalah pada server (Error 500). Pastikan backend Laravel Anda sudah diperbarui.");
+      const message = error.response?.data?.message || "Terjadi kesalahan saat menyimpan data";
+      showToast(message, "error");
+    } finally {
+      setSaving(false);
     }
   };
 
   /* ==========================================================================
      API INTEGRATION (DELETE DATA)
      ========================================================================== */
-  const handleDelete = async (id: number) => {
-    const confirmDelete = confirm("Apakah Anda yakin ingin menghapus data penyakit ini?");
-    if (!confirmDelete) return;
-
-    try {
-      await api.delete(`/penyakit/${id}`);
-      getData();
-    } catch (error) {
-      console.error("Gagal menghapus data:", error);
-    }
+  const handleDelete = async (id: number, namaPenyakit: string) => {
+    showConfirm(
+      `Hapus penyakit "${namaPenyakit}"? Data terkait kasus juga akan terhapus. Tindakan tidak dapat dibatalkan.`,
+      async () => {
+        try {
+          await api.delete(`/penyakit/${id}`);
+          showToast("Data penyakit berhasil dihapus", "success");
+          getData();
+        } catch (error: any) {
+          console.error("Gagal menghapus data:", error);
+          const message = error.response?.data?.message || "Gagal menghapus penyakit";
+          showToast(message, "error");
+        } finally {
+          setConfirm(prev => ({ ...prev, open: false }));
+        }
+      },
+      'danger'
+    );
   };
 
   /* ==========================================================================
@@ -133,17 +170,37 @@ export default function Penyakit() {
 
   return (
     <div className="dm-page">
+      {/* Toast */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(prev => ({ ...prev, show: false }))}
+        />
+      )}
 
-      {/* HEADER SECTION (Pencarian & Tombol Trigger Modal) */}
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirm.open}
+        message={confirm.message}
+        onConfirm={confirm.onConfirm}
+        onCancel={() => setConfirm(prev => ({ ...prev, open: false }))}
+        variant={confirm.variant}
+      />
+
+      {/* HEADER SECTION */}
       <div className="dk-card-header dm-header">
         <span className="dk-card-title">Data Penyakit</span>
 
         <div className="dk-header-right">
           <div className="dk-search-wrap">
+            <svg className="dk-search-icon" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
             <input
               className="dk-search"
               type="text"
-              placeholder="Cari penyakit..."
+              placeholder="Cari penyakit... (Enter)"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
@@ -222,14 +279,25 @@ export default function Penyakit() {
                         <button 
                           className="dk-action-icon dk-action-edit"
                           onClick={() => handleEdit(item)}
+                          title="Edit data"
                         >
-                          ✏️
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17 3l4 4-7 7H10v-4l7-7z" />
+                            <path d="M4 20h16" />
+                          </svg>
                         </button>
                         <button 
                           className="dk-action-icon dk-action-delete"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDelete(item.id, item.nama_penyakit)}
+                          title="Hapus data"
                         >
-                          🗑️
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 7h16" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M5 7l1 13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-13" />
+                            <path d="M9 3h6" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -241,14 +309,15 @@ export default function Penyakit() {
         </div>
       </div>
 
-      {/* MODAL SYSTEM (GRID: FORM INPUT & LIVE PREVIEW) */}
+      {/* MODAL SYSTEM */}
       {showModal && (
-        <div className="dm-modal-overlay">
+        <div className="dm-modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowModal(false); }}>
           <div className="dm-modal" style={{ position: "relative", maxWidth: "900px", width: "100%" }}>
             
             {/* TOMBOL CLOSE (✕) */}
             <button
               onClick={() => setShowModal(false)}
+              className="dk-close-btn"
               style={{
                 position: "absolute",
                 top: "20px",
@@ -257,13 +326,10 @@ export default function Penyakit() {
                 border: "none",
                 fontSize: "22px",
                 cursor: "pointer",
-                color: "#9ca3af",
-                transition: "color 0.2s"
+                color: "#9ca3af"
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#4b5563")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
             >
-              ✕
+              ×
             </button>
 
             <h3 style={{ marginBottom: "24px", fontSize: "26px", fontWeight: 700 }}>
@@ -335,9 +401,10 @@ export default function Penyakit() {
                 {/* TOMBOL SIMPAN DATA */}
                 <button
                   onClick={handleSubmit}
-                  style={{ width: "100%", background: "#2563eb", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: 700, cursor: "pointer", fontSize: "15px" }}
+                  disabled={saving}
+                  style={{ width: "100%", background: "#2563eb", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", fontSize: "15px", opacity: saving ? 0.7 : 1 }}
                 >
-                  {editId ? "Update Data" : "Simpan Data"}
+                  {saving ? "Menyimpan..." : (editId ? "Update Data" : "Simpan Data")}
                 </button>
 
                 <button

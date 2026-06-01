@@ -16,6 +16,11 @@ class Populasi extends Model
         'jumlah',
     ];
 
+     // Pastikan ini ada
+    public $incrementing = true;
+    protected $primaryKey = 'id';
+    protected $keyType = 'int';
+
     // Menggunakan type hinting untuk kejelasan
     public function wilayah(): BelongsTo
     {

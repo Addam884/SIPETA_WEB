@@ -3,7 +3,10 @@ import api from "../../services/api";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import Toast from "../../components/Toast";
+import ConfirmDialog from "../../components/Dialog";
 import "../../styles/DataMaster.css";
+import "../../styles/Toast.css";
 
 // Fix React-Leaflet icon marker bug
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -36,10 +39,36 @@ export default function Faskes() {
   const [data, setData] = useState<FaskesData[]>([]);
   const [wilayahOptions, setWilayahOptions] = useState<WilayahOption[]>([]);
   const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Modal & Edit State
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+
+  // Toast state
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'warning' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
+
+  // Dialog state
+  interface ConfirmState {
+    open: boolean;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'primary';
+  }
+  const [confirm, setConfirm] = useState<ConfirmState>({ open: false, message: '', onConfirm: () => { } });
+
+  const showToast = (message: string, type: 'success' | 'warning' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+  };
+
+  const showConfirm = (message: string, onConfirm: () => void, variant: 'danger' | 'primary' = 'danger') => {
+    setConfirm({ open: true, message, onConfirm, variant });
+  };
 
   // Form State (Default Center Jember)
   const [form, setForm] = useState({
@@ -57,6 +86,7 @@ export default function Faskes() {
       setData(response.data);
     } catch (error) {
       console.error("Gagal memuat data faskes:", error);
+      showToast("Gagal memuat data faskes", "error");
     }
   };
 
@@ -80,7 +110,6 @@ export default function Faskes() {
   const handleSearchLocationInModal = async () => {
     if (!form.nama_faskes) return;
     try {
-      // Ditambahkan keyword "Jember" di akhir agar pencarian akurat terfokus ke Jember
       const queryUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
         form.nama_faskes + " Jember"
       )}&limit=1`;
@@ -98,10 +127,11 @@ export default function Faskes() {
           longitude: lng,
         }));
       } else {
-        alert("Lokasi faskes tidak ditemukan di OpenStreetMap. Silakan klik manual pada peta.");
+        showToast("Lokasi faskes tidak ditemukan di OpenStreetMap. Silakan klik manual pada peta.", "warning");
       }
     } catch (error) {
       console.error("Gagal mencari koordinat otomatis:", error);
+      showToast("Gagal mencari koordinat otomatis", "error");
     }
   };
 
@@ -131,9 +161,11 @@ export default function Faskes() {
   // Aksi Simpan Data (Tambah / Edit)
   const handleSubmit = async () => {
     if (!form.nama_faskes || !form.wilayah_id) {
-      alert("Nama Faskes dan Wilayah Terikat wajib diisi!");
+      showToast("Nama Faskes dan Wilayah Terikat wajib diisi!", "warning");
       return;
     }
+
+    setSaving(true);
 
     try {
       const payload = {
@@ -145,20 +177,24 @@ export default function Faskes() {
 
       if (editId) {
         await api.put(`/faskes/${editId}`, payload);
+        showToast("Data faskes berhasil diupdate", "success");
       } else {
         await api.post("/faskes", payload);
+        showToast("Data faskes berhasil ditambahkan", "success");
       }
 
       setShowModal(false);
       setEditId(null);
       setForm({ nama_faskes: "", wilayah_id: "", latitude: -8.1723, longitude: 113.7001 });
       setSearchInput("");
+      setSearch("");
       getData("");
-      alert("Data faskes berhasil disimpan!");
     } catch (error: any) {
       console.error("Gagal menyimpan data:", error);
       const errorMsg = error.response?.data?.message || "Terjadi kesalahan saat menyimpan data.";
-      alert(`Error: ${errorMsg}`);
+      showToast(`Error: ${errorMsg}`, "error");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -175,27 +211,56 @@ export default function Faskes() {
   };
 
   // Aksi Klik Tombol Hapus 🗑️
-  const handleDelete = async (id: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus data faskes ini?")) return;
-    try {
-      const response = await api.delete(`/faskes/${id}`);
-      alert(response.data.message || "Data faskes berhasil dihapus!");
-      setSearchInput("");
-      getData("");
-    } catch (error: any) {
-      console.error("Gagal menghapus faskes:", error);
-      const errorMsg = error.response?.data?.message || "Gagal menghapus faskes.";
-      alert(`Error: ${errorMsg}`);
-    }
+  const handleDelete = async (id: number, namaFaskes: string) => {
+    showConfirm(
+      `Hapus faskes "${namaFaskes}"? Data terkait kasus juga akan terhapus. Tindakan tidak dapat dibatalkan.`,
+      async () => {
+        try {
+          const response = await api.delete(`/faskes/${id}`);
+          showToast(response.data.message || "Data faskes berhasil dihapus!", "success");
+          setSearchInput("");
+          setSearch("");
+          getData("");
+        } catch (error: any) {
+          console.error("Gagal menghapus faskes:", error);
+          const errorMsg = error.response?.data?.message || "Gagal menghapus faskes.";
+          showToast(`Error: ${errorMsg}`, "error");
+        } finally {
+          setConfirm(prev => ({ ...prev, open: false }));
+        }
+      },
+      'danger'
+    );
   };
 
   return (
     <div className="dm-page">
+      {/* Toast */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(prev => ({ ...prev, show: false }))}
+        />
+      )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirm.open}
+        message={confirm.message}
+        onConfirm={confirm.onConfirm}
+        onCancel={() => setConfirm(prev => ({ ...prev, open: false }))}
+        variant={confirm.variant}
+      />
+
       {/* HEADER BAR */}
       <div className="dk-card-header dm-header">
         <span className="dk-card-title">Data Faskes</span>
         <div className="dk-header-right">
           <div className="dk-search-wrap">
+            <svg className="dk-search-icon" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
             <input
               className="dk-search"
               type="text"
@@ -203,11 +268,15 @@ export default function Faskes() {
               value={searchInput}
               onChange={(e) => {
                 setSearchInput(e.target.value);
-                if (e.target.value === "") getData("");
+                if (e.target.value === "") {
+                  setSearch("");
+                  getData("");
+                }
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
+                  setSearch(searchInput);
                   getData(searchInput);
                 }
               }}
@@ -257,8 +326,29 @@ export default function Faskes() {
                     </td>
                     <td>
                       <div className="dk-actions-icons">
-                        <button className="dk-action-icon dk-action-edit" onClick={() => handleEdit(item)}>✏️</button>
-                        <button className="dk-action-icon dk-action-delete" onClick={() => handleDelete(item.id)}>🗑️</button>
+                        <button 
+                          className="dk-action-icon dk-action-edit" 
+                          onClick={() => handleEdit(item)}
+                          title="Edit data"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17 3l4 4-7 7H10v-4l7-7z" />
+                            <path d="M4 20h16" />
+                          </svg>
+                        </button>
+                        <button 
+                          className="dk-action-icon dk-action-delete" 
+                          onClick={() => handleDelete(item.id, item.nama_faskes)}
+                          title="Hapus data"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 7h16" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M5 7l1 13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-13" />
+                            <path d="M9 3h6" />
+                          </svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -271,13 +361,14 @@ export default function Faskes() {
 
       {/* POPUP FORM MODAL CONTAINER */}
       {showModal && (
-        <div className="dm-modal-overlay">
+        <div className="dm-modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowModal(false); }}>
           <div className="dm-modal" style={{ maxWidth: "900px", width: "100%", padding: "32px", borderRadius: "24px", position: "relative" }}>
             <button 
               onClick={() => setShowModal(false)}
+              className="dk-close-btn"
               style={{ position: "absolute", top: "24px", right: "24px", background: "transparent", border: "none", fontSize: "22px", cursor: "pointer", color: "#9ca3af" }}
             >
-              ✕
+              ×
             </button>
 
             <h3 style={{ marginBottom: "24px", fontSize: "24px", fontWeight: 700, color: "#1e293b" }}>
@@ -332,8 +423,12 @@ export default function Faskes() {
                   </div>
                 </div>
 
-                <button onClick={handleSubmit} style={{ width: "100%", background: "#2563eb", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: 600, cursor: "pointer", marginBottom: "10px" }}>
-                  Simpan Data
+                <button 
+                  onClick={handleSubmit} 
+                  disabled={saving}
+                  style={{ width: "100%", background: "#2563eb", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: 600, cursor: saving ? "not-allowed" : "pointer", marginBottom: "10px", opacity: saving ? 0.7 : 1 }}
+                >
+                  {saving ? "Menyimpan..." : "Simpan Data"}
                 </button>
                 <button onClick={() => setShowModal(false)} style={{ width: "100%", background: "#f3f4f6", color: "#1f2937", border: "none", padding: "12px", borderRadius: "8px", fontWeight: 600, cursor: "pointer" }}>
                   Batal

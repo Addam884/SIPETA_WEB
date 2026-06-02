@@ -39,7 +39,6 @@ export default function Faskes() {
   const [data, setData] = useState<FaskesData[]>([]);
   const [wilayahOptions, setWilayahOptions] = useState<WilayahOption[]>([]);
   const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
   // Modal & Edit State
@@ -187,7 +186,6 @@ export default function Faskes() {
       setEditId(null);
       setForm({ nama_faskes: "", wilayah_id: "", latitude: -8.1723, longitude: 113.7001 });
       setSearchInput("");
-      setSearch("");
       getData("");
     } catch (error: any) {
       console.error("Gagal menyimpan data:", error);
@@ -219,7 +217,6 @@ export default function Faskes() {
           const response = await api.delete(`/faskes/${id}`);
           showToast(response.data.message || "Data faskes berhasil dihapus!", "success");
           setSearchInput("");
-          setSearch("");
           getData("");
         } catch (error: any) {
           console.error("Gagal menghapus faskes:", error);
@@ -269,14 +266,12 @@ export default function Faskes() {
               onChange={(e) => {
                 setSearchInput(e.target.value);
                 if (e.target.value === "") {
-                  setSearch("");
                   getData("");
                 }
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  setSearch(searchInput);
                   getData(searchInput);
                 }
               }}
